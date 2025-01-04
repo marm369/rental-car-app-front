@@ -4,21 +4,21 @@ import { View, Text, Image, ScrollView, StyleSheet } from 'react-native';
 const popularCars = [
   {
     id: 1,
-    image: '/placeholder.svg',
+    image: require("../../../../../assets/cars/BMWM4.jpeg"),
     model: 'BMW M4',
     year: 2023,
     price: 150,
   },
   {
     id: 2,
-    image: '/placeholder.svg',
+    image: require("../../../../../assets/cars/MercedesC300.jpeg"),
     model: 'Mercedes C300',
     year: 2023,
     price: 130,
   },
   {
     id: 3,
-    image: '/placeholder.svg',
+    image:require("../../../../../assets/cars/AudiA5.jpeg"),
     model: 'Audi A5',
     year: 2022,
     price: 120,
@@ -32,7 +32,7 @@ export const PopularCars = () => {
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {popularCars.map((car) => (
           <View key={car.id} style={styles.carCard}>
-            <Image source={{ uri: car.image }} style={styles.carImage} />
+            <Image source={car.image} style={styles.carImage} />
             <Text style={styles.model}>{car.model}</Text>
             <Text style={styles.year}>{car.year}</Text>
             <Text style={styles.price}>${car.price}/day</Text>

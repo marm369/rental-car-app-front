@@ -7,10 +7,10 @@ export const AppBar = () => {
     <View style={styles.container}>
       <View style={styles.profileContainer}>
         <Image
-          source={{ uri: '/placeholder.svg' }}
+          source={require("../../../../../assets/images/profile.jpeg")}
           style={styles.profileImage}
         />
-        <Text style={styles.userName}>John Doe</Text>
+        <Text style={styles.userName}>Meriem Oulja</Text>
       </View>
       <Bell size={24} color="#000" />
     </View>

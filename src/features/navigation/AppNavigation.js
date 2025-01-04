@@ -3,8 +3,12 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import OnboardingScreen from "../authentication/screens/onboarding/OnboardingScreen";
 import LoginScreen from "../authentication/screens/login/LoginScreen";
-import BottomNavigationBar from "./BottomNavigationBar";
-import SignInScreen from "../authentication/screens/signin/SignInScreen"
+import BottomNavigationBar from "../navigation/BottomNavigationBar";
+import SignUpScreen from "../authentication/screens/signup/SignUpScreen";
+import SuccessScreen from "../../common/components/SuccessScreen";
+import StoreDetailsScreen from "../geolocalisation/screens/StoreDetailsScreen";
+import AddCarScreen from "../store/screens/add-car/AddCarScreen";
+
 const Stack = createNativeStackNavigator();
 export default function AppNavigation() {
   return (
@@ -25,9 +29,25 @@ export default function AppNavigation() {
           component={BottomNavigationBar}
           options={{ headerShown: false }}
         />
-          <Stack.Screen
-          name="SignIn"
-          component={SignInScreen}
+        <Stack.Screen
+          name="SignUp"
+          component={SignUpScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="SuccessScreen"
+          component={SuccessScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="AddCar"
+          component={AddCarScreen}
+          options={{ headerShown: false }}
+        />
+
+        <Stack.Screen
+          name="StoreDetails"
+          component={StoreDetailsScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
