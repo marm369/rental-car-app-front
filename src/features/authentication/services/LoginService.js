@@ -1,11 +1,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { endpoint } from '../../../config/config';
 
 export const handleLoginRequest = async (payload) => {
-  const endpoint = "http://192.168.27.154:5000/api/Authentication/login";
+    const Endpoint = `${endpoint}/users/login`;
 
   try {
-    /*
-    const response = await fetch(endpoint, {
+    const response = await fetch(Endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -14,16 +14,22 @@ export const handleLoginRequest = async (payload) => {
     });
 
     const result = await response.json();
-    */
-    const result = true;
-    if (true) {
-      //await AsyncStorage.setItem("username", payload.userName);
+
+
+    if (response.ok) {
+      await AsyncStorage.setItem("username", payload.username);
+      await AsyncStorage.setItem("userId", String(result.user.id));
+      await AsyncStorage.setItem("role", String(result.role));
+
       return { success: true, data: result };
     } else {
-      return { success: false, message: result.message };
+      // Gérer les erreurs retournées par le serveur
+      return { success: false, message: result.message || "Login failed." };
     }
   } catch (error) {
     console.error("Error during login:", error);
+
+    // Gérer les erreurs côté client
     return { success: false, message: "An error occurred during login." };
   }
 };

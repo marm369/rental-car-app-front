@@ -1,5 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Alert } from "react-native";
+import { endpoint } from '../../../config/config';
+
 
 const StoreService = {
   async searchPlace(searchPlace, setSelectedLocation, setMapRegion) {
@@ -51,28 +53,49 @@ const StoreService = {
     }
 
     try {
-        /*
-      const username = await AsyncStorage.getItem("username");
-      if (!username) {
-        Alert.alert("Error", "Unable to find username in local storage!");
+      const userId = await AsyncStorage.getItem("userId"); // Récupérer userId depuis AsyncStorage
+      if (!userId) {
+        Alert.alert("Error", "Unable to find userId in local storage!");
         return false;
       }
 
       const payload = {
         name: storeData.storeName,
-        owner: username,
         description: storeData.description,
         phoneNumber: storeData.phone,
-        longitude: storeData.selectedLocation.longitude,
-        latitude: storeData.selectedLocation.latitude,
-        image: storeData.image,
+        location: {
+          type: "Point",
+          coordinates: [
+            storeData.selectedLocation.longitude,
+            storeData.selectedLocation.latitude,
+          ],
+        },
+        imageBase64: storeData.image,
+        userId: parseInt(userId, 10),
       };
-*/
-      // Simulate successful response
-      return true;
+
+      console.log(`Sending payload: ${JSON.stringify(payload, null, 2)}`);
+
+      const response = await fetch(`${endpoint}/agencies/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        Alert.alert("Error", "Failed to create agency. Please try again.");
+        return null;
+      }
+
+      const responseData = await response.json();
+      Alert.alert("Success", "Agency created successfully!");
+      return responseData;
+
     } catch (error) {
       Alert.alert("Error", `An error occurred: ${error.message}`);
-      return false;
+      return null;
     }
   },
 };

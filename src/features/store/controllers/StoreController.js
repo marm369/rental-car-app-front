@@ -82,13 +82,15 @@ const StoreController = () => {
       selectedLocation,
       image,
     });
+    console.log(result.id)
 
-    if (result) {
+    if (result && result.id) {
       navigation.navigate("SuccessScreen", {
         imageSource: require("../../../../assets/images/store-created.jpeg"),
         title: "Store Created!",
         subTitle: "Your store has been successfully created.",
         navigateTo: "AddCar",
+        storeId:result.id,
       });
     }
   };

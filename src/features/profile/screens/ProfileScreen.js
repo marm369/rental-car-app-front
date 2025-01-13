@@ -28,12 +28,12 @@ const ProfileScreen = () => {
     <ScrollView style={ProfileStyles.container}>
       {/* Header Section */}
       <View style={ProfileStyles.header}>
-        <Image
-          source={{
-            uri: userInfo?.image || "https://via.placeholder.com/150",
-          }}
-          style={ProfileStyles.profileImage}
-        />
+       <Image
+         source={{
+           uri: userInfo?.picture || "https://via.placeholder.com/150",
+         }}
+         style={ProfileStyles.profileImage}
+       />
       </View>
 
       {/* Profile Details */}

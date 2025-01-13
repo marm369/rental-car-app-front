@@ -12,7 +12,7 @@ import MapView, { Marker } from "react-native-maps";
 import StoreStyles from "./StoreStyles";
 import StoreController from "../../controllers/StoreController";
 
-const StoreScreen = () => {
+const StoreScreen = ({ navigation }) => {
   const {
     storeName,
     setStoreName,
@@ -29,8 +29,16 @@ const StoreScreen = () => {
     selectedLocation,
     setSelectedLocation,
     loading,
-    handleCreateStore,
+    handleCreateStore, // Original create store function
   } = StoreController();
+
+  const handleCreateStoreAndNavigate = async () => {
+    try {
+      await handleCreateStore();
+    } catch (error) {
+      console.error("Error creating store:", error);
+    }
+  };
 
   return (
     <ScrollView style={StoreStyles.container}>
@@ -116,7 +124,7 @@ const StoreScreen = () => {
 
         <TouchableOpacity
           style={StoreStyles.createButton}
-          onPress={handleCreateStore}
+          onPress={handleCreateStoreAndNavigate}
         >
           <Text style={StoreStyles.createButtonText}>Create Store</Text>
         </TouchableOpacity>

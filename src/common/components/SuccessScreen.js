@@ -7,11 +7,11 @@ const SuccessScreen = () => {
   const route = useRoute();
 
   // Récupération des params
-  const { imageSource, navigateTo, title, subTitle } = route.params || {};
+  const { imageSource, navigateTo, title, subTitle ,storeId} = route.params || {};
 
   const handleNavigation = () => {
     if (navigateTo) {
-      navigation.navigate(navigateTo);
+      navigation.navigate(navigateTo,{storeId});
     }
   };
 

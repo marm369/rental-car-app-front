@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,34 +6,48 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
-  ScrollView,
   Image,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import DropDownPicker from "react-native-dropdown-picker";
+import { Picker } from "@react-native-picker/picker";
+import axios from "axios";
 
-const AddCarScreen = ({ navigation }) => {
-  const [brand, setBrand] = useState("");
-  const [model, setModel] = useState("");
+const AddCarScreen = ({ navigation,route }) => {
+  const [brands, setBrands] = useState([]);
+  const [selectedBrandId, setSelectedBrandId] = useState(null);
+  const [models, setModels] = useState([]);
+  const [selectedModelId, setSelectedModelId] = useState(null);
   const [year, setYear] = useState("");
-  const [seats, setSeats] = useState("");
   const [color, setColor] = useState("");
-  const [fuel, setFuel] = useState("");
   const [price, setPrice] = useState("");
-  const [carType, setCarType] = useState(null);
   const [image, setImage] = useState(null);
+  const { storeId } = route.params || {};
 
-  const [carTypeOpen, setCarTypeOpen] = useState(false);
-  const [carTypes, setCarTypes] = useState([
-    { label: "Family", value: "Family" },
-    { label: "City", value: "City" },
-    { label: "Sport", value: "Sport" },
-    { label: "Classic", value: "Classic" },
-    { label: "Luxury", value: "Luxury" },
-    { label: "Trip", value: "Trip" },
-    { label: "Electric", value: "Electric" },
-    { label: "Off-Road", value: "Off-Road" },
-  ]);
+  useEffect(() => {
+    fetchBrands();
+    fetchModels();
+  }, []);
+
+  const fetchBrands = async () => {
+    try {
+      const response = await axios.get("http://192.168.1.1:3000/brand/getAll");
+      setBrands(response.data); // Contient directement les objets de marque
+    } catch (error) {
+      console.error("Erreur lors de la récupération des marques :", error);
+    }
+  };
+
+  const fetchModels = async () => {
+    try {
+      const response = await axios.get("http://192.168.1.1:3000/model/getAll");
+      setModels(response.data); // Contient directement les objets de modèle
+    } catch (error) {
+      console.error("Erreur lors de la récupération des modèles :", error);
+    }
+  };
 
   const handlePickImage = async () => {
     const permissionResult =
@@ -59,141 +73,131 @@ const AddCarScreen = ({ navigation }) => {
     }
   };
 
-  const handleAddCar = () => {
-    if (
-      !brand ||
-      !model ||
-      !year ||
-      !seats ||
-      !color ||
-      !fuel ||
-      !price ||
-      !carType ||
-      !image
-    ) {
+  const handleAddCar = async () => {
+    if (!selectedBrandId || !selectedModelId || !year || !color || !price || !image) {
       Alert.alert("Error", "Please fill all fields!");
       return;
     }
 
-    Alert.alert("Success", `${model} has been added successfully!`);
-    navigation.goBack();
+    const carData = {
+      brandId: selectedBrandId,
+      modelId: selectedModelId,
+      color:color,
+      year: parseInt(year, 10),
+      pricePerDay: parseFloat(price),
+      agencyId: storeId, // Remplacez par l'ID réel de l'agence
+      imageUrl: image, // Vous pouvez adapter l'upload d'image au backend
+    };
+
+    try {
+      const response = await axios.post("http://192.168.1.1:3000/cars", carData);
+      if (response.status === 201) {
+        Alert.alert("Success", "Car added successfully!");
+        navigation.goBack();
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'ajout de la voiture :", error);
+      Alert.alert("Error", "Failed to add car. Please try again.");
+    }
   };
 
+  const filteredModels = models.filter(
+    (model) => model.brand.id === selectedBrandId
+  );
+
   return (
-    <ScrollView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backArrow}
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backArrow}
+          >
+            <Text style={styles.backArrowText}>←</Text>
+          </TouchableOpacity>
+          <Text style={styles.title}>Add New Car</Text>
+        </View>
+
+        {/* Brand Dropdown */}
+        <Text style={styles.label}>Brand</Text>
+        <Picker
+          selectedValue={selectedBrandId}
+          onValueChange={(itemValue) => {
+            setSelectedBrandId(itemValue);
+            setSelectedModelId(null);
+          }}
+          style={styles.picker}
         >
-          <Text style={styles.backArrowText}>←</Text>
+          <Picker.Item label="Choose a brand" value={null} />
+          {brands.map((brand) => (
+            <Picker.Item key={brand.id} label={brand.name} value={brand.id} />
+          ))}
+        </Picker>
+
+        {/* Model Dropdown */}
+        <Text style={styles.label}>Model</Text>
+        <Picker
+          selectedValue={selectedModelId}
+          onValueChange={setSelectedModelId}
+          style={styles.picker}
+          enabled={filteredModels.length > 0}
+        >
+          <Picker.Item label="Choose a model" value={null} />
+          {filteredModels.map((model) => (
+            <Picker.Item key={model.id} label={model.name} value={model.id} />
+          ))}
+        </Picker>
+
+        {/* Other fields */}
+        <Text style={styles.label}>Year of Production</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter production year"
+          value={year}
+          onChangeText={setYear}
+          keyboardType="numeric"
+        />
+        <Text style={styles.label}>Color</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter car color"
+          value={color}
+          onChangeText={setColor}
+        />
+        <Text style={styles.label}>Price Per Day ($)</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter rental price per day"
+          value={price}
+          onChangeText={setPrice}
+          keyboardType="numeric"
+        />
+
+        {/* Image Picker */}
+        <Text style={styles.label}>Car Image</Text>
+        <TouchableOpacity style={styles.imagePicker} onPress={handlePickImage}>
+          {image ? (
+            <Image source={{ uri: image }} style={styles.carImage} />
+          ) : (
+            <Text style={styles.imagePickerText}>Pick an Image</Text>
+          )}
         </TouchableOpacity>
-        <Text style={styles.title}>Add New Car</Text>
-      </View>
 
-      {/* Brand Input */}
-      <Text style={styles.label}>Brand</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="e.g., Honda, Toyota, Fiat..."
-        value={brand}
-        onChangeText={setBrand}
-      />
-
-      {/* Model Input */}
-      <Text style={styles.label}>Model</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter car model"
-        value={model}
-        onChangeText={setModel}
-      />
-
-      {/* Year Input */}
-      <Text style={styles.label}>Year of Production</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter production year"
-        value={year}
-        onChangeText={setYear}
-        keyboardType="numeric"
-      />
-
-      {/* Seats Input */}
-      <Text style={styles.label}>Number of Seats</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter number of seats"
-        value={seats}
-        onChangeText={setSeats}
-        keyboardType="numeric"
-      />
-
-      {/* Color Input */}
-      <Text style={styles.label}>Color</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter car color"
-        value={color}
-        onChangeText={setColor}
-      />
-
-      {/* Fuel Input */}
-      <Text style={styles.label}>Fuel Type</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="e.g., Gasoline, Diesel, Electric..."
-        value={fuel}
-        onChangeText={setFuel}
-      />
-
-      {/* Price Input */}
-      <Text style={styles.label}>Price Per Day ($)</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter rental price per day"
-        value={price}
-        onChangeText={setPrice}
-        keyboardType="numeric"
-      />
-
-      {/* Car Type Dropdown */}
-      <Text style={styles.label}>Car Type</Text>
-      <DropDownPicker
-        open={carTypeOpen}
-        value={carType}
-        items={carTypes}
-        setOpen={setCarTypeOpen}
-        setValue={setCarType}
-        setItems={setCarTypes}
-        placeholder="Select a car type"
-        style={styles.dropdown}
-        dropDownContainerStyle={styles.dropdownContainer}
-      />
-
-      {/* Image Picker */}
-      <Text style={styles.label}>Car Image</Text>
-      <TouchableOpacity style={styles.imagePicker} onPress={handlePickImage}>
-        {image ? (
-          <Image source={{ uri: image }} style={styles.carImage} />
-        ) : (
-          <Text style={styles.imagePickerText}>Pick an Image</Text>
-        )}
-      </TouchableOpacity>
-
-      {/* Add Car Button */}
-      <TouchableOpacity style={styles.addButton} onPress={handleAddCar}>
-        <Text style={styles.addButtonText}>Add Car</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        <TouchableOpacity style={styles.addButton} onPress={handleAddCar}>
+          <Text style={styles.addButtonText}>Add Car</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#E3F2FD", // Light blue background
+    backgroundColor: "#E3F2FD",
     padding: 20,
   },
   header: {
@@ -204,75 +208,59 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#1565C0", // Dark blue
+    color: "#1565C0",
     textAlign: "center",
-    marginTop: 40,
     marginLeft: 40,
   },
   label: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#0D47A1", // Deep blue
     marginBottom: 5,
+  },
+  picker: {
+    backgroundColor: "#fff",
+    borderColor: "#ddd",
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: 15,
   },
   input: {
     backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: "#90CAF9", // Soft blue border
+    borderColor: "#90CAF9",
     borderRadius: 10,
     padding: 10,
     fontSize: 16,
     marginBottom: 15,
   },
-  dropdown: {
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "#90CAF9",
-    borderRadius: 10,
-    marginBottom: 15,
-  },
-  dropdownContainer: {
-    borderWidth: 1,
-    borderColor: "#90CAF9",
-  },
   imagePicker: {
-    height: 150,
-    backgroundColor: "#E3F2FD", // Light blue
-    borderWidth: 1,
-    borderColor: "#1565C0", // Dark blue
-    borderRadius: 10,
+    height: 200,
+    width: "100%",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 20,
-  },
-  imagePickerText: {
-    color: "#1565C0", // Deep blue
-    fontWeight: "bold",
+    backgroundColor: "#f0f0f0",
+    borderRadius: 10,
+    marginBottom: 15,
   },
   carImage: {
     width: "100%",
     height: "100%",
     borderRadius: 10,
   },
+  imagePickerText: {
+    color: "#888",
+    fontSize: 16,
+  },
   addButton: {
-    backgroundColor: "#1565C0", // Blue button
-    paddingVertical: 15,
-    borderRadius: 10,
+    backgroundColor: "#1565C0",
+    padding: 15,
+    borderRadius: 8,
     alignItems: "center",
   },
   addButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#FFFFFF",
-  },
-  backArrow: {
-    marginLeft: 10,
-    padding: 5,
-  },
-  backArrowText: {
-    fontSize: 20,
-    color: "#1565C0",
-    fontWeight: "bold",
   },
 });
 

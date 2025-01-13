@@ -1,22 +1,26 @@
 import { Alert } from "react-native";
+import { endpoint } from '../../../config/config';
 
 export const handleCreateAccountRequest = async (formValues) => {
   try {
-    /*
-    const endpoint = "http://192.168.27.154:5000/api/Authentication/register";
+    // Endpoint du backend
+    const endpoint = 'http://192.168.1.1:3000/users/register';
 
     // Création du payload avec les propriétés nécessaires
     const payload = {
-      image: formValues.profileImage,
+      username: formValues.username,
+      password: formValues.password,
       firstName: formValues.firstName,
       lastName: formValues.lastName,
-      phoneNumber: formValues.phoneNumber,
-      username: formValues.username,
       email: formValues.email,
-      password: formValues.password,
+      phoneNumber: formValues.phoneNumber,
       role: formValues.role,
+      picture: formValues.profileImage, // Ajout de la clé 'picture'
     };
 
+    console.log("------------payload------", payload);
+
+    // Requête POST vers le backend
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {
@@ -25,17 +29,20 @@ export const handleCreateAccountRequest = async (formValues) => {
       body: JSON.stringify(payload),
     });
 
+    // Traitement de la réponse
     const result = await response.json();
-    */
-    //response.ok
-    const result = true;
-    if (true) {
+
+    if (response.ok) {
+      // Si la réponse est un succès
+      Alert.alert("Success", "Account created successfully!");
       return result;
     } else {
+      // En cas d'erreur du backend
       Alert.alert("Error", result.message || "Failed to create account.");
       return null;
     }
   } catch (error) {
+    // Gestion des erreurs de requête
     console.error("Error creating account:", error);
     Alert.alert(
       "Error",

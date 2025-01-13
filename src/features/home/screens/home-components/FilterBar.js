@@ -1,165 +1,94 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  StyleSheet,
-} from "react-native";
-import { ChevronDown } from "lucide-react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, Button } from "react-native";
+import { Picker } from '@react-native-picker/picker';
+import axios from "axios";
 
-// Types de voitures avec icônes
-const carTypes = [
-  { id: 1, name: "Family", icon: "👨‍👩‍👧‍👦" },
-  { id: 2, name: "City", icon: "🏙️" },
-  { id: 3, name: "Sport", icon: "🏎️" },
-  { id: 4, name: "Classic", icon: "🚘" },
-  { id: 5, name: "Luxury", icon: "💎" },
-  { id: 6, name: "Trip", icon: "🚐" },
-  { id: 7, name: "Electric", icon: "⚡" },
-  { id: 8, name: "Off-Road", icon: "🚙" },
-];
+const FilterBar = () => {
+  const [brands, setBrands] = useState([]); // Liste des marques
+  const [selectedBrand, setSelectedBrand] = useState(""); // Marque sélectionnée
+  const [models, setModels] = useState([]); // Liste des modèles
+  const [selectedModel, setSelectedModel] = useState(""); // Modèle sélectionné
 
-// Types de carburants
-const fuelTypes = ["Essence", "Diesel", "Electric", "Hybrid", "Hydrogène"];
+  // Fonction pour récupérer les marques
+  const fetchBrands = async () => {
+    try {
+      const response = await axios.get(`${endpoint}/brand/getAll`);
+      const brandNames = response.data.map((brand) => brand.name);
+      setBrands(brandNames);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des marques :", error);
+    }
+  };
 
-const brands = [
-  { id: 1, name: "BMW" },
-  { id: 2, name: "Mercedes" },
-  { id: 3, name: "Audi" },
-];
+  // Fonction pour récupérer les modèles
+  const fetchModels = async () => {
+    try {
+      const response = await axios.get(`${endpoint}/model/getAll`);
+      const modelData = response.data.map((model) => ({
+        id: model.id,
+        name: model.name,
+        brand: model.brand.name, // Nom de la marque associée
+      }));
+      setModels(modelData);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des modèles :", error);
+    }
+  };
 
-const years = Array.from({ length: 25 }, (_, i) => 2000 + i);
-const colors = ["Noir", "Blanc", "Rouge", "Bleu", "Gris"];
+  // Charger les données au montage du composant
+  useEffect(() => {
+    fetchBrands();
+    fetchModels();
+  }, []);
 
-export const FilterBar = () => {
-  const [selectedDropdown, setSelectedDropdown] = useState(null); // Un seul état pour gérer les listes déroulantes ouvertes
-  const [selectedBrand, setSelectedBrand] = useState("");
-  const [selectedType, setSelectedType] = useState("");
-  const [selectedYear, setSelectedYear] = useState("");
-  const [selectedFuel, setSelectedFuel] = useState("");
-  const [selectedColor, setSelectedColor] = useState("");
-  const [sortAscending, setSortAscending] = useState(true);
+  // Filtrer les modèles en fonction de la marque sélectionnée
+  const filteredModels = models.filter((model) => model.brand === selectedBrand);
 
-  const toggleDropdown = (dropdownName) => {
-    setSelectedDropdown((prev) =>
-      prev === dropdownName ? null : dropdownName
-    );
+  // Fonction pour appliquer les filtres
+  const applyFilters = () => {
+    console.log("Selected Brand:", selectedBrand);
+    console.log("Selected Model:", selectedModel);
   };
 
   return (
     <View style={styles.container}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        {/* Brands Dropdown */}
-        <View style={styles.filterGroup}>
-          <TouchableOpacity
-            style={styles.dropdown}
-            onPress={() => toggleDropdown("brands")}
+      <Text style={styles.title}>Filter Options</Text>
+      {/* Conteneur des dropdowns et du bouton */}
+      <View style={styles.frame}>
+        {/* Conteneur des dropdowns côte à côte */}
+        <View style={styles.dropdownContainer}>
+          {/* Dropdown pour les marques */}
+          <Picker
+            selectedValue={selectedBrand}
+            onValueChange={(itemValue) => {
+              setSelectedBrand(itemValue);
+              setSelectedModel(""); // Réinitialiser le modèle sélectionné
+            }}
+            style={styles.picker}
           >
-            <Text>{selectedBrand || "Marque"}</Text>
-            <ChevronDown size={20} color="#000" />
-          </TouchableOpacity>
-          {selectedDropdown === "brands" && (
-            <View style={styles.dropdownContent}>
-              {brands.map((brand) => (
-                <TouchableOpacity
-                  key={brand.id}
-                  style={styles.dropdownItem}
-                  onPress={() => {
-                    setSelectedBrand(brand.name);
-                    setSelectedDropdown(null);
-                  }}
-                >
-                  <Text>{brand.name}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-        </View>
+            <Picker.Item label="Choose a brand" value="" />
+            {brands.map((brand, index) => (
+              <Picker.Item key={index} label={brand} value={brand} />
+            ))}
+          </Picker>
 
-        {/* Car Types Dropdown */}
-        <View style={styles.filterGroup}>
-          <TouchableOpacity
-            style={styles.dropdown}
-            onPress={() => toggleDropdown("carTypes")}
+          {/* Dropdown pour les modèles */}
+          <Picker
+            selectedValue={selectedModel}
+            onValueChange={(itemValue) => setSelectedModel(itemValue)}
+            style={styles.picker}
+            enabled={filteredModels.length > 0} // Désactiver si aucun modèle
           >
-            <Text>{selectedType || "Type"}</Text>
-            <ChevronDown size={20} color="#000" />
-          </TouchableOpacity>
-          {selectedDropdown === "carTypes" && (
-            <View style={styles.dropdownContent}>
-              {carTypes.map((type) => (
-                <TouchableOpacity
-                  key={type.id}
-                  style={styles.dropdownItem}
-                  onPress={() => {
-                    setSelectedType(type.name);
-                    setSelectedDropdown(null);
-                  }}
-                >
-                  <Text>{type.icon}</Text>
-                  <Text>{type.name}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
+            <Picker.Item label="Choose a model" value="" />
+            {filteredModels.map((model) => (
+              <Picker.Item key={model.id} label={model.name} value={model.name} />
+            ))}
+          </Picker>
         </View>
 
-        {/* Year Filter */}
-        <View style={styles.filterGroup}>
-          <TouchableOpacity style={styles.dropdown}>
-            <Text>{selectedYear || "Année"}</Text>
-            <ChevronDown size={20} color="#000" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Fuel Type Dropdown */}
-        <View style={styles.filterGroup}>
-          <TouchableOpacity
-            style={styles.dropdown}
-            onPress={() => toggleDropdown("fuelTypes")}
-          >
-            <Text>{selectedFuel || "Carburant"}</Text>
-            <ChevronDown size={20} color="#000" />
-          </TouchableOpacity>
-          {selectedDropdown === "fuelTypes" && (
-            <View style={styles.dropdownContent}>
-              {fuelTypes.map((fuel, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={styles.dropdownItem}
-                  onPress={() => {
-                    setSelectedFuel(fuel);
-                    setSelectedDropdown(null);
-                  }}
-                >
-                  <Text>{fuel}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-        </View>
-
-        {/* Color Filter */}
-        <View style={styles.filterGroup}>
-          <TouchableOpacity style={styles.dropdown}>
-            <Text>{selectedColor || "Couleur"}</Text>
-            <ChevronDown size={20} color="#000" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Sort Price */}
-        <TouchableOpacity
-          style={styles.sortButton}
-          onPress={() => setSortAscending(!sortAscending)}
-        >
-          <Text>Prix {sortAscending ? "↑" : "↓"}</Text>
-        </TouchableOpacity>
-      </ScrollView>
-
-      <TouchableOpacity style={styles.applyButton}>
-        <Text style={styles.applyButtonText}>Appliquer</Text>
-      </TouchableOpacity>
+        {/* Bouton Appliquer */}
+        <Button title="Apply" onPress={applyFilters} style={styles.button} />
+      </View>
     </View>
   );
 };
@@ -167,64 +96,41 @@ export const FilterBar = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
+    backgroundColor: "#f5f5f5",
+    flex: 1,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 16,
+  },
+  frame: {
     backgroundColor: "#fff",
-    borderRadius: 12,
-    margin: 16,
+    padding: 16,
+    borderRadius: 8,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 5, // Ombre pour Android
   },
-  filterGroup: {
-    marginRight: 12,
-    position: "relative",
-  },
-  dropdown: {
+  dropdownContainer: {
     flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    minWidth: 120,
-    gap: 8,
+    justifyContent: "space-between", // Espace entre les listes
+    alignItems: "center", // Aligner les items au centre
+    marginBottom: 16, // Espace entre les listes et le bouton
   },
-  dropdownContent: {
-    position: "absolute",
-    top: "100%",
-    left: 0,
-    right: 0,
-    backgroundColor: "#fff",
+  picker: {
+    flex: 1, // Prendre un espace égal
+    height: 50,
+    backgroundColor: "#e0e0e0",
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    marginTop: 4,
-    zIndex: 1000,
+    marginHorizontal: 8, // Espacement horizontal entre les éléments
   },
-  dropdownItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 8,
-    gap: 8,
-  },
-  sortButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-  },
-  applyButton: {
-    backgroundColor: "#0066FF",
-    padding: 12,
-    borderRadius: 8,
+  button: {
     marginTop: 16,
-    alignItems: "center",
-  },
-  applyButtonText: {
-    color: "#fff",
-    fontWeight: "600",
+    backgroundColor: "#0066FF",
   },
 });
+
+export default FilterBar;

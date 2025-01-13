@@ -1,58 +1,50 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
 import { Users, Fuel } from "lucide-react-native";
+import { carController } from '../../controller/carController';
 
-const cars = [
-  {
-    id: 1,
-    image: require("../../../../../assets/cars/BMWM4.jpeg"),
-    brand: "BMW",
-    model: "M4",
-    type: "Sport",
-    passengers: 4,
-    fuelType: "Essence",
-    year: 2023,
-    price: 150,
-  },
-  {
-    id: 2,
-    image: require("../../../../../assets/cars/MercedesC300.jpeg"),
-    brand: "Mercedes",
-    model: "C300",
-    type: "Classique",
-    passengers: 5,
-    fuelType: "Diesel",
-    year: 2022,
-    price: 130,
-  },
-];
 
 export const CarList = () => {
+  const [cars, setCars] = useState([]); // État pour stocker les voitures
+
+  useEffect(() => {
+    // Appel de la fonction pour récupérer les voitures
+    const fetchCars = async () => {
+      try {
+        const fetchedCars = await carController.getCars();
+        setCars(fetchedCars); // Mise à jour de l'état avec les voitures récupérées
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchCars(); // Appeler la fonction pour récupérer les voitures
+  }, []);
+
   return (
     <View style={styles.container}>
       {cars.map((car) => (
         <View key={car.id} style={styles.carCard}>
-          <Image source={car.image} style={styles.carImage} />
+          {/* Image de la voiture */}
+          <Image source={{ uri: car.imageUrl }} style={styles.carImage} />
           <View style={styles.carInfo}>
             <View style={styles.header}>
               <View>
                 <Text style={styles.brandModel}>
-                  {car.brand} {car.model}
+                  {car.brand?.name} {car.model?.name} {/* Optionnel si vous voulez inclure ces champs */}
                 </Text>
-                <Text style={styles.type}>{car.type}</Text>
+                <Text style={styles.type}>{car.color}</Text>
               </View>
-              <Text style={styles.price}>${car.price}/jour</Text>
+              <Text style={styles.price}>${car.pricePerDay}/jour</Text>
             </View>
             <View style={styles.details}>
               <View style={styles.detailItem}>
                 <Users size={16} color="#666" />
-                <Text style={styles.detailText}>
-                  {car.passengers} personnes
-                </Text>
+                <Text style={styles.detailText}>4 personnes</Text>
               </View>
               <View style={styles.detailItem}>
                 <Fuel size={16} color="#666" />
-                <Text style={styles.detailText}>{car.fuelType}</Text>
+                <Text style={styles.detailText}>{car.isRented ? "Louée" : "Disponible"}</Text>
               </View>
               <Text style={styles.detailText}>{car.year}</Text>
             </View>

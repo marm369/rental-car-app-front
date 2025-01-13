@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { Suspense, useState } from "react";
 import {
   View,
   Text,
@@ -8,15 +8,19 @@ import {
 } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import ProfileScreen from "../profile/screens/ProfileScreen";
-import StoreScreen from "../store/screens/create-store/StoreScreen";
-import StoreCarsScreen from "../store/screens/display-cars/StoreCarsScreen";
-import HomeScreen from "../home/screens/HomeScreen";
-import MapScreen from "../geolocalisation/screens/MapScreen";
-import PanierScreen from "../panier/screens/PanierScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Tab = createBottomTabNavigator();
+
+// Lazy-loaded components
+const HomeScreen = React.lazy(() => import("../home/screens/HomeScreen"));
+const MapScreen = React.lazy(() => import("../geolocalisation/screens/MapScreen"));
+const PanierScreen = React.lazy(() => import("../panier/screens/PanierScreen"));
+const ProfileScreen = React.lazy(() => import("../profile/screens/ProfileScreen"));
+const StoreScreen = React.lazy(() => import("../store/screens/create-store/StoreScreen"));
+const StoreCarsScreen = React.lazy(() =>
+  import("../store/screens/display-cars/StoreCarsScreen")
+);
 
 export default function BottomNavigationBar() {
   var isStore = true;
@@ -111,19 +115,72 @@ export default function BottomNavigationBar() {
         },
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Map" component={MapScreen} />
+      <Tab.Screen
+        name="Home"
+        component={() => (
+          <Suspense fallback={<LoadingFallback />}>
+            <HomeScreen />
+          </Suspense>
+        )}
+      />
+      <Tab.Screen
+        name="Map"
+        component={() => (
+          <Suspense fallback={<LoadingFallback />}>
+            <MapScreen />
+          </Suspense>
+        )}
+      />
       {isStore ? (
         isCreated ? (
-          <Tab.Screen name="Store" component={StoreCarsScreen} />
+          <Tab.Screen
+            name="Store"
+            component={() => (
+              <Suspense fallback={<LoadingFallback />}>
+                <StoreCarsScreen />
+              </Suspense>
+            )}
+          />
         ) : (
-          <Tab.Screen name="Store" component={StoreScreen} />
+          <Tab.Screen
+            name="Store"
+            component={() => (
+              <Suspense fallback={<LoadingFallback />}>
+                <StoreScreen />
+              </Suspense>
+            )}
+          />
         )
       ) : (
-        <Tab.Screen name="Panier" component={PanierScreen} />
+        <Tab.Screen
+          name="Panier"
+          component={() => (
+            <Suspense fallback={<LoadingFallback />}>
+              <PanierScreen />
+            </Suspense>
+          )}
+        />
       )}
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen
+        name="Profile"
+        component={() => (
+          <Suspense fallback={<LoadingFallback />}>
+            <ProfileScreen />
+          </Suspense>
+        )}
+      />
     </Tab.Navigator>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <View style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color="#1E90FF" />
+      <Text style={{ marginTop: 10, color: "#1E90FF" }}>
+        Chargement en cours...
+      </Text>
+    </View>
   );
 }
 

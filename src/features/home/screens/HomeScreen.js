@@ -2,7 +2,7 @@ import React from "react";
 import { SafeAreaView, ScrollView, StyleSheet } from "react-native";
 import { AppBar } from  "./home-components/AppBar.js"
 import { PopularCars } from "./home-components/PopularCars.js"
-import { FilterBar } from "./home-components/FilterBar.js"
+import FilterBar  from "./home-components/FilterBar.js"
 import { CarList } from "./home-components/CarList.js";
 const HomeScreen = () => {
   return (
