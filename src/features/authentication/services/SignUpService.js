@@ -4,7 +4,7 @@ import { endpoint } from '../../../config/config';
 export const handleCreateAccountRequest = async (formValues) => {
   try {
     // Endpoint du backend
-    const endpoint = 'http://192.168.1.1:3000/users/register';
+    const endpoint = 'http://192.168.1.165:3000/users/register';
 
     // Création du payload avec les propriétés nécessaires
     const payload = {

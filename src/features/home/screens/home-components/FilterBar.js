@@ -1,44 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
-import { Picker } from '@react-native-picker/picker';
-import axios from "axios";
-
+import { Picker } from "@react-native-picker/picker";
+import BrandModelService from "../../service/brand_model_service";
+import { API_BASE_URL  } from '../../../../../config/config';
 const FilterBar = () => {
-  const [brands, setBrands] = useState([]); // Liste des marques
-  const [selectedBrand, setSelectedBrand] = useState(""); // Marque sélectionnée
-  const [models, setModels] = useState([]); // Liste des modèles
-  const [selectedModel, setSelectedModel] = useState(""); // Modèle sélectionné
+  const [brands, setBrands] = useState([]);
+  const [selectedBrand, setSelectedBrand] = useState("");
+  const [models, setModels] = useState([]);
+  const [selectedModel, setSelectedModel] = useState("");
+  const [error, setError] = useState(null);
 
-  // Fonction pour récupérer les marques
-  const fetchBrands = async () => {
-    try {
-      const response = await axios.get(`${endpoint}/brand/getAll`);
-      const brandNames = response.data.map((brand) => brand.name);
-      setBrands(brandNames);
-    } catch (error) {
-      console.error("Erreur lors de la récupération des marques :", error);
-    }
-  };
-
-  // Fonction pour récupérer les modèles
-  const fetchModels = async () => {
-    try {
-      const response = await axios.get(`${endpoint}/model/getAll`);
-      const modelData = response.data.map((model) => ({
-        id: model.id,
-        name: model.name,
-        brand: model.brand.name, // Nom de la marque associée
-      }));
-      setModels(modelData);
-    } catch (error) {
-      console.error("Erreur lors de la récupération des modèles :", error);
-    }
-  };
-
-  // Charger les données au montage du composant
   useEffect(() => {
-    fetchBrands();
-    fetchModels();
+    const fetchData = async () => {
+      try {
+        const fetchedBrands = await BrandModelService.getAllBrands();
+        const fetchedModels = await BrandModelService.getAllModels();
+        setBrands(fetchedBrands);
+        setModels(fetchedModels);
+      } catch (err) {
+        setError("Failed to load data. Please try again.");
+      }
+    };
+
+    fetchData();
   }, []);
 
   // Filtrer les modèles en fonction de la marque sélectionnée
@@ -53,11 +37,9 @@ const FilterBar = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Filter Options</Text>
-      {/* Conteneur des dropdowns et du bouton */}
+      {error && <Text style={styles.errorText}>{error}</Text>} {/* Afficher les erreurs */}
       <View style={styles.frame}>
-        {/* Conteneur des dropdowns côte à côte */}
         <View style={styles.dropdownContainer}>
-          {/* Dropdown pour les marques */}
           <Picker
             selectedValue={selectedBrand}
             onValueChange={(itemValue) => {
@@ -72,7 +54,6 @@ const FilterBar = () => {
             ))}
           </Picker>
 
-          {/* Dropdown pour les modèles */}
           <Picker
             selectedValue={selectedModel}
             onValueChange={(itemValue) => setSelectedModel(itemValue)}
@@ -85,8 +66,6 @@ const FilterBar = () => {
             ))}
           </Picker>
         </View>
-
-        {/* Bouton Appliquer */}
         <Button title="Apply" onPress={applyFilters} style={styles.button} />
       </View>
     </View>
@@ -112,24 +91,28 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: 5, // Ombre pour Android
+    elevation: 5,
   },
   dropdownContainer: {
     flexDirection: "row",
-    justifyContent: "space-between", // Espace entre les listes
-    alignItems: "center", // Aligner les items au centre
-    marginBottom: 16, // Espace entre les listes et le bouton
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
   },
   picker: {
-    flex: 1, // Prendre un espace égal
+    flex: 1,
     height: 50,
     backgroundColor: "#e0e0e0",
     borderRadius: 8,
-    marginHorizontal: 8, // Espacement horizontal entre les éléments
+    marginHorizontal: 8,
   },
   button: {
     marginTop: 16,
     backgroundColor: "#0066FF",
+  },
+  errorText: {
+    color: "red",
+    marginBottom: 8,
   },
 });
 
