@@ -1,27 +1,31 @@
-import axios from 'axios';
-import { endpoint } from '../../../config/config';
+// services/BrandModelService.js
+import axios from "axios";
 
-class BrandModelService {
-  async getAllBrands() {
+
+const BrandModelService = {
+  getAllBrands: async () => {
     try {
-      const response = await axios.get(`http://192.168.1.128:3000/brand/getAll`);
-      console.log(response.data);
-      return response.data;
+      const response = await axios.get(`${API_BASE_URL}/brand/getAll`);
+      return response.data.map((brand) => brand.name); // Retourne seulement les noms des marques
     } catch (error) {
-      console.error('Error fetching brands:', error);
+      console.error("Erreur lors de la récupération des marques :", error);
+      throw error; // Propager l'erreur pour la gérer dans le composant
     }
-  }
+  },
 
-  async getAllModels() {
+  getAllModels: async () => {
     try {
-      const response = await axios.get(`http://192.168.1.128:3000/model/getAll`);
-      console.log(response.data);
-      return response.data;
+      const response = await axios.get(`${API_BASE_URL}/model/getAll`);
+      return response.data.map((model) => ({
+        id: model.id,
+        name: model.name,
+        brand: model.brand.name, // Nom de la marque associée
+      }));
     } catch (error) {
-      console.error('Error fetching models:', error);
-      throw error;
+      console.error("Erreur lors de la récupération des modèles :", error);
+      throw error; // Propager l'erreur pour la gérer dans le composant
     }
-  }
-}
+  },
+};
 
-export default new BrandModelService();
+export default BrandModelService;
