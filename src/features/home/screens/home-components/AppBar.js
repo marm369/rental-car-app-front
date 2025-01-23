@@ -3,14 +3,14 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { Bell, MessageCircle } from "lucide-react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
-import { ProfileController } from "../../../profile/controllers/ProfileController.js";
+import ProfileController from "../../../profile/controllers/ProfileController.js";
+
 import ChatScreen from "./Chat.js";
 
 export const AppBar = ({ onNotificationPress }) => {
   const [username, setUsername] = useState("");
   const navigation = useNavigation();
   const { userInfo } = ProfileController();
-
   useEffect(() => {
     const fetchUsername = async () => {
       try {
