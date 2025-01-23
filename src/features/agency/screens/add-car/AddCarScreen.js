@@ -24,7 +24,7 @@ const AddCarScreen = ({ navigation,route }) => {
   const [color, setColor] = useState("");
   const [price, setPrice] = useState("");
   const [image, setImage] = useState(null);
-  const { storeId } = route.params || {};
+  const { agencyId } = route.params || {};
 
   useEffect(() => {
     fetchBrands();
@@ -85,7 +85,7 @@ const AddCarScreen = ({ navigation,route }) => {
       color:color,
       year: parseInt(year, 10),
       pricePerDay: parseFloat(price),
-      agencyId: storeId, // Remplacez par l'ID réel de l'agence
+      agencyId: agencyId, // Remplacez par l'ID réel de l'agence
       imageUrl: image, // Vous pouvez adapter l'upload d'image au backend
     };
 

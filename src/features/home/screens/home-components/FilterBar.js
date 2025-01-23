@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import BrandModelService from "../../service/brand_model_service";
-import { API_BASE_URL  } from '../../../../../config/config';
+import { API_BASE_URL } from "../../../../config/config";
 const FilterBar = () => {
   const [brands, setBrands] = useState([]);
   const [selectedBrand, setSelectedBrand] = useState("");
@@ -26,20 +26,23 @@ const FilterBar = () => {
   }, []);
 
   // Filtrer les modèles en fonction de la marque sélectionnée
-  const filteredModels = models.filter((model) => model.brand === selectedBrand);
+  const filteredModels = models.filter(
+    (model) => model.brand === selectedBrand
+  );
 
   // Fonction pour appliquer les filtres
   const applyFilters = () => {
     console.log("Selected Brand:", selectedBrand);
     console.log("Selected Model:", selectedModel);
   };
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Filter Options</Text>
-      {error && <Text style={styles.errorText}>{error}</Text>} {/* Afficher les erreurs */}
+      {/* Conteneur des dropdowns et du bouton */}
       <View style={styles.frame}>
+        {/* Conteneur des dropdowns côte à côte */}
         <View style={styles.dropdownContainer}>
+          {/* Dropdown pour les marques */}
           <Picker
             selectedValue={selectedBrand}
             onValueChange={(itemValue) => {
@@ -54,6 +57,7 @@ const FilterBar = () => {
             ))}
           </Picker>
 
+          {/* Dropdown pour les modèles */}
           <Picker
             selectedValue={selectedModel}
             onValueChange={(itemValue) => setSelectedModel(itemValue)}
@@ -62,10 +66,16 @@ const FilterBar = () => {
           >
             <Picker.Item label="Choose a model" value="" />
             {filteredModels.map((model) => (
-              <Picker.Item key={model.id} label={model.name} value={model.name} />
+              <Picker.Item
+                key={model.id}
+                label={model.name}
+                value={model.name}
+              />
             ))}
           </Picker>
         </View>
+
+        {/* Bouton Appliquer */}
         <Button title="Apply" onPress={applyFilters} style={styles.button} />
       </View>
     </View>
@@ -91,28 +101,24 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: 5,
+    elevation: 5, // Ombre pour Android
   },
   dropdownContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
+    justifyContent: "space-between", // Espace entre les listes
+    alignItems: "center", // Aligner les items au centre
+    marginBottom: 16, // Espace entre les listes et le bouton
   },
   picker: {
-    flex: 1,
+    flex: 1, // Prendre un espace égal
     height: 50,
     backgroundColor: "#e0e0e0",
     borderRadius: 8,
-    marginHorizontal: 8,
+    marginHorizontal: 8, // Espacement horizontal entre les éléments
   },
   button: {
     marginTop: 16,
     backgroundColor: "#0066FF",
-  },
-  errorText: {
-    color: "red",
-    marginBottom: 8,
   },
 });
 

@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-const StoreCarsScreen = () => {
+const AgencyCarsScreen = () => {
   const navigation = useNavigation();
   const [products, setProducts] = useState([
     {
@@ -207,4 +207,4 @@ header: {
   },
 });
 
-export default StoreCarsScreen;
+export default AgencyCarsScreen;

@@ -34,6 +34,8 @@ const ProfileController = () => {
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem("username");
+    await AsyncStorage.removeItem("role");
+    await AsyncStorage.removeItem("userId");
     navigation.navigate("Login");
   };
 

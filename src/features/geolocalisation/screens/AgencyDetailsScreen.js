@@ -11,11 +11,11 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
-const StoreDetailsScreen = ({ route }) => {
+const AgencyDetailsScreen = ({ route }) => {
   const navigation = useNavigation();
-  const { store } = route.params;
+  const { agency } = route.params;
 
-  // Liste des voitures proposées par le store
+  // Liste des voitures proposées par le agency
   const cars = [
     {
       id: 1,
@@ -62,17 +62,17 @@ const StoreDetailsScreen = ({ route }) => {
         <Icon name="arrow-back" size={24} color="#333" />
       </TouchableOpacity>
 
-      {/* Store Image */}
-      <Image source={store.image} style={styles.storeImage} />
+      {/* Agency Image */}
+      <Image source={agency.image} style={styles.agencyImage} />
 
-      {/* Store Info */}
+      {/* Agency Info */}
       <View style={styles.infoContainer}>
-        <Text style={styles.storeName}>{store.name}</Text>
-        <Text style={styles.storeDetails}>📍 {store.address}</Text>
-        <Text style={styles.storeDetails}>📞 {store.phone}</Text>
-        <Text style={styles.storeDescription}>
-          {store.description ||
-            `Ceci est la description du magasin ${store.name}.`}
+        <Text style={styles.agencyName}>{agency.name}</Text>
+        <Text style={styles.agencyDetails}>📍 {agency.address}</Text>
+        <Text style={styles.agencyDetails}>📞 {agency.phone}</Text>
+        <Text style={styles.agencyDescription}>
+          {agency.description ||
+            `Ceci est la description du magasin ${agency.name}.`}
         </Text>
       </View>
 
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
   },
-  storeImage: {
+  agencyImage: {
     width: "100%",
     height: 200,
     resizeMode: "cover",
@@ -126,18 +126,18 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
   },
-  storeName: {
+  agencyName: {
     fontSize: 28,
     fontWeight: "bold",
     color: "#333",
     marginBottom: 10,
   },
-  storeDetails: {
+  agencyDetails: {
     fontSize: 16,
     color: "#666",
     marginBottom: 5,
   },
-  storeDescription: {
+  agencyDescription: {
     fontSize: 14,
     color: "#555",
     marginTop: 10,
@@ -187,4 +187,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default StoreDetailsScreen;
+export default AgencyDetailsScreen;

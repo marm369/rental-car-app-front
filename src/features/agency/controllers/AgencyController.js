@@ -3,12 +3,12 @@ import { Alert } from "react-native";
 import * as Location from "expo-location";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
-import StoreService from "../services/StoreService";
+import AgencyService from "../services/AgencyService";
 import { useNavigation } from "@react-navigation/native";
 
-const StoreController = () => {
+const AgencyController = () => {
   const navigation = useNavigation();
-  const [storeName, setStoreName] = useState("");
+  const [agencyName, setAgencyName] = useState("");
   const [description, setDescription] = useState("");
   const [phone, setPhone] = useState("");
   const [searchPlace, setSearchPlace] = useState("");
@@ -67,37 +67,37 @@ const StoreController = () => {
   };
 
   const handleSearch = async () => {
-    await StoreService.searchPlace(
+    await AgencyService.searchPlace(
       searchPlace,
       setSelectedLocation,
       setMapRegion
     );
   };
 
-  const handleCreateStore = async () => {
-    const result = await StoreService.createStore({
-      storeName,
+  const handleCreateAgency = async () => {
+    const result = await AgencyService.createAgency({
+      agencyName,
       description,
       phone,
       selectedLocation,
       image,
     });
-    console.log(result.id)
+    console.log(result.id);
 
     if (result && result.id) {
       navigation.navigate("SuccessScreen", {
         imageSource: require("../../../../assets/images/store-created.jpeg"),
-        title: "Store Created!",
-        subTitle: "Your store has been successfully created.",
+        title: "Agency Created!",
+        subTitle: "Your agency has been successfully created.",
         navigateTo: "AddCar",
-        storeId:result.id,
+        agencyId: result.id,
       });
     }
   };
 
   return {
-    storeName,
-    setStoreName,
+    agencyName,
+    setAgencyName,
     description,
     setDescription,
     phone,
@@ -111,8 +111,8 @@ const StoreController = () => {
     selectedLocation,
     setSelectedLocation,
     loading,
-    handleCreateStore,
+    handleCreateAgency,
   };
 };
 
-export default StoreController;
+export default AgencyController;

@@ -3,10 +3,10 @@ import { StyleSheet } from "react-native";
 const ProfileStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFBF0", // Subtle orange background
+    backgroundColor: "#E6F0FF", // Subtle blue background
   },
   header: {
-    backgroundColor: "#FB923C", // Vibrant orange for the header
+    backgroundColor: "#3B82F6", // Vibrant blue for the header
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     alignItems: "center",
@@ -36,7 +36,7 @@ const ProfileStyles = StyleSheet.create({
   infoTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#FB923C", // Orange for titles
+    color: "#3B82F6", // Blue for titles
     marginBottom: 10,
   },
   infoRow: {
@@ -53,12 +53,14 @@ const ProfileStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#EF4444", // Red for logout button
+    backgroundColor: "#1E40AF", // Blue for logout button
     paddingVertical: 15,
     marginHorizontal: 20,
     borderRadius: 30,
     marginBottom: 30,
+    marginTop: 40,
   },
+
   logoutText: {
     color: "#FFF",
     fontSize: 16,
@@ -69,12 +71,12 @@ const ProfileStyles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FFFBF0",
+    backgroundColor: "#E6F0FF", // Subtle blue background
   },
   loadingText: {
     marginTop: 10,
     fontSize: 16,
-    color: "#FB923C",
+    color: "#3B82F6", // Blue for loading text
   },
 });
 

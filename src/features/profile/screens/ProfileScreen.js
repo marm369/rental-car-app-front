@@ -28,37 +28,42 @@ const ProfileScreen = () => {
     <ScrollView style={ProfileStyles.container}>
       {/* Header Section */}
       <View style={ProfileStyles.header}>
-       <Image
-         source={{
-           uri: userInfo?.picture || "https://via.placeholder.com/150",
-         }}
-         style={ProfileStyles.profileImage}
-       />
+        <Image
+          source={{
+            uri: userInfo?.picture || "https://via.placeholder.com/150",
+          }}
+          style={ProfileStyles.profileImage}
+        />
       </View>
 
       {/* Profile Details */}
       <View style={ProfileStyles.infoSection}>
         <Text style={ProfileStyles.infoTitle}>Personal Information</Text>
         <View style={ProfileStyles.infoRow}>
-          <MaterialIcons name="person" size={24} color="#FB923C" />
+          <MaterialIcons name="person" size={24} color="#3B82F6" />
           <Text style={ProfileStyles.infoText}>
             {userInfo?.firstName || "N/A"} {userInfo?.lastName || "N/A"}
           </Text>
         </View>
 
         <View style={ProfileStyles.infoRow}>
-          <MaterialIcons name="email" size={24} color="#FB923C" />
+          <MaterialIcons name="email" size={24} color="#3B82F6" />
           <Text style={ProfileStyles.infoText}>{userInfo?.email || "N/A"}</Text>
         </View>
 
         <View style={ProfileStyles.infoRow}>
-          <MaterialIcons name="phone" size={24} color="#FB923C" />
-          <Text style={ProfileStyles.infoText}>{userInfo?.phoneNumber || "N/A"}</Text>
+          <MaterialIcons name="phone" size={24} color="#3B82F6" />
+          <Text style={ProfileStyles.infoText}>
+            {userInfo?.phoneNumber || "N/A"}
+          </Text>
         </View>
       </View>
 
       {/* Logout Button */}
-      <TouchableOpacity style={ProfileStyles.logoutButton} onPress={handleLogout}>
+      <TouchableOpacity
+        style={ProfileStyles.logoutButton}
+        onPress={handleLogout}
+      >
         <Feather name="log-out" size={18} color="#FFF" />
         <Text style={ProfileStyles.logoutText}>Logout</Text>
       </TouchableOpacity>

@@ -3,7 +3,7 @@ import { Alert } from "react-native";
 import { endpoint } from '../../../config/config';
 
 
-const StoreService = {
+const AgencyService = {
   async searchPlace(searchPlace, setSelectedLocation, setMapRegion) {
     if (!searchPlace.trim()) {
       Alert.alert("Error", "Please enter a location to search!");
@@ -40,13 +40,13 @@ const StoreService = {
     }
   },
 
-  async createStore(storeData) {
+  async createAgency(agencyData) {
     if (
-      !storeData.storeName ||
-      !storeData.description ||
-      !storeData.phone ||
-      !storeData.selectedLocation ||
-      !storeData.image
+      !agencyData.agencyName ||
+      !agencyData.description ||
+      !agencyData.phone ||
+      !agencyData.selectedLocation ||
+      !agencyData.image
     ) {
       Alert.alert("Error", "Please fill all the fields and select an image!");
       return false;
@@ -60,17 +60,17 @@ const StoreService = {
       }
 
       const payload = {
-        name: storeData.storeName,
-        description: storeData.description,
-        phoneNumber: storeData.phone,
+        name: agencyData.agencyName,
+        description: agencyData.description,
+        phoneNumber: agencyData.phone,
         location: {
           type: "Point",
           coordinates: [
-            storeData.selectedLocation.longitude,
-            storeData.selectedLocation.latitude,
+            agencyData.selectedLocation.longitude,
+            agencyData.selectedLocation.latitude,
           ],
         },
-        imageBase64: storeData.image,
+        imageBase64: agencyData.image,
         userId: parseInt(userId, 10),
       };
 
@@ -100,4 +100,4 @@ const StoreService = {
   },
 };
 
-export default StoreService;
+export default AgencyService;

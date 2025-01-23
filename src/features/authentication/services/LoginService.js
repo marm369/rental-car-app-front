@@ -1,8 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { endpoint } from '../../../config/config';
+import { endpoint } from "../../../config/config";
 
 export const handleLoginRequest = async (payload) => {
-    const Endpoint = `${endpoint}/users/login`;
+  const Endpoint = `${endpoint}/users/login`;
 
   try {
     const response = await fetch(Endpoint, {
@@ -15,12 +15,12 @@ export const handleLoginRequest = async (payload) => {
 
     const result = await response.json();
 
-
     if (response.ok) {
       await AsyncStorage.setItem("username", payload.username);
       await AsyncStorage.setItem("userId", String(result.user.id));
-      await AsyncStorage.setItem("role", String(result.role));
-
+      await AsyncStorage.setItem("role", result.user.role);
+      console.log("LogiIn");
+      console.log(result.user.role);
       return { success: true, data: result };
     } else {
       // Gérer les erreurs retournées par le serveur

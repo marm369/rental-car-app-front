@@ -246,32 +246,32 @@ const SignUpScreen = () => {
         {/* Role Selection */}
 
         <View style={SignUpStyles.radioButtonGroup}>
-  {/* Option for RENTER */}
-  <TouchableOpacity
-    style={SignUpStyles.radioButtonContainer}
-    onPress={() => setFormValues({ ...formValues, role: "RENTER" })}
-  >
-    <View style={SignUpStyles.radioCircle}>
-      {formValues.role === "RENTER" && (
-        <View style={SignUpStyles.selectedCircle} />
-      )}
-    </View>
-    <Text style={SignUpStyles.radioLabel}>Car Store Owner</Text>
-  </TouchableOpacity>
+          {/* Option for RENTER */}
+          <TouchableOpacity
+            style={SignUpStyles.radioButtonContainer}
+            onPress={() => setFormValues({ ...formValues, role: "RENTER" })}
+          >
+            <View style={SignUpStyles.radioCircle}>
+              {formValues.role === "RENTER" && (
+                <View style={SignUpStyles.selectedCircle} />
+              )}
+            </View>
+            <Text style={SignUpStyles.radioLabel}>Car Store Owner</Text>
+          </TouchableOpacity>
 
-  {/* Option for CLIENT */}
-  <TouchableOpacity
-    style={SignUpStyles.radioButtonContainer}
-    onPress={() => setFormValues({ ...formValues, role: "CLIENT" })}
-  >
-    <View style={SignUpStyles.radioCircle}>
-      {formValues.role === "CLIENT" && (
-        <View style={SignUpStyles.selectedCircle} />
-      )}
-    </View>
-    <Text style={SignUpStyles.radioLabel}>Rental</Text>
-  </TouchableOpacity>
-</View>
+          {/* Option for CLIENT */}
+          <TouchableOpacity
+            style={SignUpStyles.radioButtonContainer}
+            onPress={() => setFormValues({ ...formValues, role: "CLIENT" })}
+          >
+            <View style={SignUpStyles.radioCircle}>
+              {formValues.role === "CLIENT" && (
+                <View style={SignUpStyles.selectedCircle} />
+              )}
+            </View>
+            <Text style={SignUpStyles.radioLabel}>Client</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Create Account Button */}
         <TouchableOpacity

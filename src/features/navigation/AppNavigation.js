@@ -6,8 +6,8 @@ import LoginScreen from "../authentication/screens/login/LoginScreen";
 import BottomNavigationBar from "../navigation/BottomNavigationBar";
 import SignUpScreen from "../authentication/screens/signup/SignUpScreen";
 import SuccessScreen from "../../common/components/SuccessScreen";
-import StoreDetailsScreen from "../geolocalisation/screens/StoreDetailsScreen";
-import AddCarScreen from "../store/screens/add-car/AddCarScreen";
+import AgencyDetailsScreen from "../geolocalisation/screens/AgencyDetailsScreen";
+import AddCarScreen from "../agency/screens/add-car/AddCarScreen";
 import ChatScreen from "../home/screens/home-components/Chat";
 
 const Stack = createNativeStackNavigator();
@@ -47,8 +47,8 @@ export default function AppNavigation() {
         />
 
         <Stack.Screen
-          name="StoreDetails"
-          component={StoreDetailsScreen}
+          name="AgencyDetails"
+          component={AgencyDetailsScreen}
           options={{ headerShown: false }}
         />
         <Stack.Screen

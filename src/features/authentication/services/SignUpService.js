@@ -1,12 +1,18 @@
 import { Alert } from "react-native";
-import { endpoint } from '../../../config/config';
+import { endpoint } from "../../../config/config";
 
 export const handleCreateAccountRequest = async (formValues) => {
   try {
-    // Endpoint du backend
-    const endpoint = 'http://192.168.1.165:3000/users/register';
+    // Ensure endpoint is correctly imported and defined
+    if (!endpoint) {
+      throw new Error("Endpoint is not defined in config");
+    }
 
-    // Création du payload avec les propriétés nécessaires
+    // Construct the full URL for the API endpoint
+    const apiUrl = `${endpoint}/users/register`;
+    console.log("API URL:", apiUrl); // Log the full URL for debugging
+
+    // Create the payload with necessary properties
     const payload = {
       username: formValues.username,
       password: formValues.password,
@@ -15,39 +21,55 @@ export const handleCreateAccountRequest = async (formValues) => {
       email: formValues.email,
       phoneNumber: formValues.phoneNumber,
       role: formValues.role,
-      picture: formValues.profileImage, // Ajout de la clé 'picture'
+      picture: formValues.profileImage,
     };
 
-    console.log("------------payload------", payload);
+    console.log("Payload:", JSON.stringify(payload, null, 2));
 
-    // Requête POST vers le backend
-    const response = await fetch(endpoint, {
+    // Set up request options with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 seconds timeout
+
+    // Make the POST request to the backend
+    const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Accept: "application/json",
       },
       body: JSON.stringify(payload),
+      signal: controller.signal,
     });
 
-    // Traitement de la réponse
+    clearTimeout(timeoutId);
+
+    // Parse the response
     const result = await response.json();
 
     if (response.ok) {
-      // Si la réponse est un succès
+      // If the response is successful
       Alert.alert("Success", "Account created successfully!");
       return result;
     } else {
-      // En cas d'erreur du backend
-      Alert.alert("Error", result.message || "Failed to create account.");
-      return null;
+      // If there's an error from the backend
+      throw new Error(result.message || "Failed to create account");
     }
   } catch (error) {
-    // Gestion des erreurs de requête
+    // Handle request errors
     console.error("Error creating account:", error);
-    Alert.alert(
-      "Error",
-      "An error occurred while creating the account. Please try again."
-    );
+
+    if (error.name === "AbortError") {
+      Alert.alert(
+        "Error",
+        "The request timed out. Please check your internet connection and try again."
+      );
+    } else {
+      Alert.alert(
+        "Error",
+        `An error occurred while creating the account: ${error.message}. Please try again.`
+      );
+    }
+
     return null;
   }
 };
