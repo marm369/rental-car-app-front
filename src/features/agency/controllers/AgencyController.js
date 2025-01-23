@@ -90,7 +90,6 @@ const AgencyController = () => {
         title: "Agency Created!",
         subTitle: "Your agency has been successfully created.",
         navigateTo: "AddCar",
-        agencyId: result.id,
       });
     }
   };

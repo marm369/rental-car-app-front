@@ -1,0 +1,93 @@
+import { useState, useEffect } from "react";
+import { CarService } from "../services/CarService";
+import CarModel from "../models/CarModel";
+
+export const useCarController = (initialAgencyId) => {
+  const [brands, setBrands] = useState([]);
+  const [carTypes, setCarTypes] = useState({
+    carCategories: [],
+    fuelTypes: [],
+  });
+  const [selectedBrand, setSelectedBrand] = useState(null);
+  const [carData, setCarData] = useState({
+    ...CarModel,
+    agencyId: initialAgencyId,
+  });
+  const [isAgencyIdLoading, setIsAgencyIdLoading] = useState(!initialAgencyId); // Track agencyId loading state
+
+  useEffect(() => {
+    if (!initialAgencyId) {
+      fetchAgencyId(); // Fetch agencyId only if not provided
+    } else {
+      setCarData((prevData) => ({ ...prevData, agencyId: initialAgencyId }));
+    }
+    fetchBrands();
+    fetchCarTypes();
+  }, []);
+
+  const fetchAgencyId = async () => {
+    try {
+      setIsAgencyIdLoading(true);
+      const agencyId = await CarService.getAgencyId(); // Make an API call to get agencyId
+      setCarData((prevData) => ({ ...prevData, agencyId }));
+    } catch (error) {
+      console.error("Error fetching agency ID:", error);
+    } finally {
+      setIsAgencyIdLoading(false);
+    }
+  };
+
+  const fetchBrands = async () => {
+    try {
+      const fetchedBrands = await CarService.getAllBrands();
+      setBrands(fetchedBrands);
+    } catch (error) {
+      console.error("Error fetching brands:", error);
+    }
+  };
+
+  const fetchCarTypes = async () => {
+    try {
+      const fetchedCarTypes = await CarService.getCarTypes();
+      setCarTypes(fetchedCarTypes);
+    } catch (error) {
+      console.error("Error fetching car types:", error);
+    }
+  };
+
+  const handleBrandChange = (brandId) => {
+    const brand = brands.find((b) => b.id === parseInt(brandId));
+    setSelectedBrand(brand);
+    setCarData((prevData) => ({ ...prevData, modelId: "" }));
+  };
+
+  const handleModelChange = (modelId) => {
+    setCarData((prevData) => ({ ...prevData, modelId }));
+  };
+
+  const handleInputChange = (name, value) => {
+    setCarData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const handleAddCar = async () => {
+    try {
+      await CarService.addCar(carData);
+      return true;
+    } catch (error) {
+      console.error("Error adding car:", error);
+      throw error;
+    }
+  };
+
+  return {
+    brands,
+    carTypes,
+    selectedBrand,
+    carData,
+    isAgencyIdLoading,
+    handleBrandChange,
+    handleModelChange,
+    handleInputChange,
+    handleAddCar,
+  };
+};

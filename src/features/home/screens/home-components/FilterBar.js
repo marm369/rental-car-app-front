@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import BrandModelService from "../../service/brand_model_service";
+import BrandModelService from "../../service/BrandModelService";
 import { API_BASE_URL } from "../../../../config/config";
 const FilterBar = () => {
   const [brands, setBrands] = useState([]);

@@ -19,8 +19,6 @@ export const handleLoginRequest = async (payload) => {
       await AsyncStorage.setItem("username", payload.username);
       await AsyncStorage.setItem("userId", String(result.user.id));
       await AsyncStorage.setItem("role", result.user.role);
-      console.log("LogiIn");
-      console.log(result.user.role);
       return { success: true, data: result };
     } else {
       // Gérer les erreurs retournées par le serveur

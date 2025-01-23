@@ -1,4 +1,4 @@
-import { getAllCars, applyCarFilters } from '../service/carService';
+import { getAllCars, applyCarFilters } from '../service/CarService';
 
 export const carController = {
   // Fonction pour récupérer toutes les voitures

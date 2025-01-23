@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,90 +8,79 @@ import {
   Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { CarService } from "../../services/CarService";
+import { Users, Fuel, DollarSign, Plus } from "lucide-react-native";
 
 const AgencyCarsScreen = () => {
   const navigation = useNavigation();
-  const [products, setProducts] = useState([
-    {
-      id: "1",
-      name: "Apple",
-      price: "$2.00",
-      quantity: "50",
-      image: "https://via.placeholder.com/100",
-      category: "Fruits",
-    },
-    {
-      id: "2",
-      name: "Milk",
-      price: "$1.50",
-      quantity: "30",
-      image: "https://via.placeholder.com/100",
-      category: "Dairy",
-    },
-    {
-      id: "3",
-      name: "Bread",
-      price: "$1.20",
-      quantity: "20",
-      image: "https://via.placeholder.com/100",
-      category: "Bakery",
-    },
-    {
-      id: "4",
-      name: "Cheese",
-      price: "$3.00",
-      quantity: "15",
-      image: "https://via.placeholder.com/100",
-      category: "Dairy",
-    },
-  ]);
+  const [cars, setCars] = useState([]);
 
-  const handleAddProduct = () => {
-    navigation.navigate("AddProduct"); 
+  useEffect(() => {
+    const fetchCars = async () => {
+      try {
+        const fetchedCars = await CarService.getCarsByAgence();
+        setCars(fetchedCars);
+      } catch (error) {
+        console.error("Error fetching cars:", error);
+      }
+    };
+
+    fetchCars();
+  }, []);
+
+  const handleCarClick = (car) => {
+    navigation.navigate("CarDetails", { car });
   };
 
-  const renderProduct = ({ item }) => (
-    <View style={styles.productCard}>
-      {/* Image section */}
-      <View style={styles.imageContainer}>
-        <Image source={{ uri: item.image }} style={styles.productImage} />
-      </View>
-      {/* Info section */}
-      <View style={styles.infoContainer}>
-        <Text style={styles.productName}>{item.name}</Text>
-        <View style={styles.badgeContainer}>
-          <Text style={styles.categoryBadge}>{item.category}</Text>
-          <Text
-            style={[
-              styles.stockBadge,
-              { backgroundColor: item.quantity > 20 ? "#34D399" : "#F87171" },
-            ]}
-          >
-            {item.quantity > 20 ? "In Stock" : "Low Stock"}
-          </Text>
+  const handleAddCar = () => {
+    navigation.navigate("AddCar");
+  };
+
+  const renderCar = ({ item }) => (
+    <TouchableOpacity
+      onPress={() => handleCarClick(item)}
+      style={styles.carCard}
+    >
+      <Image source={{ uri: item.imageUrl }} style={styles.carImage} />
+      <View style={styles.carInfo}>
+        <Text style={styles.carCategory}>{item.category}</Text>
+        <Text style={styles.carDetails}>
+          {item.color} - {item.year}
+        </Text>
+        <View style={styles.carFeatures}>
+          <View style={styles.featureItem}>
+            <Users size={16} color="#1E90FF" />
+            <Text style={styles.featureText}>{item.nbrPersonnes}</Text>
+          </View>
+          <View style={styles.featureItem}>
+            <Fuel size={16} color="#1E90FF" />
+            <Text style={styles.featureText}>{item.fuelType}</Text>
+          </View>
+          <View style={styles.featureItem}>
+            <DollarSign size={16} color="#1E90FF" />
+            <Text style={styles.featureText}>${item.pricePerDay}/day</Text>
+          </View>
         </View>
-        <Text style={styles.productPrice}>{item.price}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
     <View style={styles.container}>
-      {/* Header Section */}
       <View style={styles.header}>
-        <Text style={styles.marketName}>My Market</Text>
-        <TouchableOpacity style={styles.addButton} onPress={handleAddProduct}>
-          <Text style={styles.addButtonText}>Add Product</Text>
+        <Text style={styles.agencyName}>My Agency</Text>
+        <TouchableOpacity style={styles.addButton} onPress={handleAddCar}>
+          <Plus size={24} color="#1E90FF" />
         </TouchableOpacity>
       </View>
 
-      {/* Products Grid */}
       <FlatList
-        data={products}
-        renderItem={renderProduct}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        contentContainerStyle={styles.gridContainer}
+        data={cars}
+        renderItem={renderCar}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={styles.carList}
+        numColumns={1}
+        key="carList"
       />
     </View>
   );
@@ -100,110 +89,74 @@ const AgencyCarsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFF5E1", // Fond beige-orangé
+    backgroundColor: "#F0F8FF",
   },
-header: {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-  paddingHorizontal: 20,
-  paddingVertical: 15,
-  borderBottomLeftRadius: 35,
-  borderBottomRightRadius: 35,
-  marginTop : 40,
-},
-
-  marketName: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#FF7A00",
-  },
-  addButton: {
-    backgroundColor: "#FFFFFF",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  addButtonText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#FF7A00",
-  },
-  gridContainer: {
-    padding: 15,
-  },
-  productCard: {
-    width: "48%",
-    margin: "1%",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 15,
-    padding: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 4,
-    alignItems: "center",
-  },
-  imageContainer: {
-    width: 110,
-    height: 110,
-    borderRadius: 55,
-    backgroundColor: "#FFF7E5",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 10,
-    borderWidth: 2,
-    borderColor: "#FFB84D",
-  },
-  productImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-  },
-  infoContainer: {
-    alignItems: "center",
-    width: "100%",
-  },
-  productName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#FF7A00",
-    marginBottom: 5,
-  },
-  badgeContainer: {
+  header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E0E0E0",
+    marginTop: 40,
+  },
+  agencyName: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#1E90FF",
+  },
+  addButton: {
+    backgroundColor: "#F0F8FF",
+    padding: 10,
+    borderRadius: 50,
+  },
+  carList: {
+    padding: 10,
+  },
+  carCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 10,
+    marginBottom: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  carImage: {
     width: "100%",
+    height: 200,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+  },
+  carInfo: {
+    padding: 15,
+  },
+  carCategory: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#1E90FF",
+    marginBottom: 5,
+  },
+  carDetails: {
+    fontSize: 14,
+    color: "#4A4A4A",
     marginBottom: 10,
   },
-  categoryBadge: {
-    backgroundColor: "#FFE4C4",
-    paddingVertical: 2,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-    fontSize: 12,
-    color: "#FF7A00",
-    fontWeight: "bold",
+  carFeatures: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
-  stockBadge: {
-    paddingVertical: 2,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-    fontSize: 12,
-    color: "#FFFFFF",
-    fontWeight: "bold",
+  featureItem: {
+    flexDirection: "row",
+    alignItems: "center",
   },
-  productPrice: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#FF7A00",
+  featureText: {
+    marginLeft: 5,
+    fontSize: 14,
+    color: "#4A4A4A",
   },
 });
 

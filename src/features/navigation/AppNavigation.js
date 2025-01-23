@@ -7,6 +7,7 @@ import BottomNavigationBar from "../navigation/BottomNavigationBar";
 import SignUpScreen from "../authentication/screens/signup/SignUpScreen";
 import SuccessScreen from "../../common/components/SuccessScreen";
 import AgencyDetailsScreen from "../geolocalisation/screens/AgencyDetailsScreen";
+import CarDetailsScreen from "../agency/screens/display-cars/CarDetailsScreen";
 import AddCarScreen from "../agency/screens/add-car/AddCarScreen";
 import ChatScreen from "../home/screens/home-components/Chat";
 
@@ -56,7 +57,11 @@ export default function AppNavigation() {
           component={ChatScreen}
           options={{ headerShown: false }}
         />
-
+        <Stack.Screen
+          name="CarDetails"
+          component={CarDetailsScreen}
+          options={{ headerShown: false }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

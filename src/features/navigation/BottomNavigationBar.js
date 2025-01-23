@@ -53,19 +53,12 @@ export default function BottomNavigationBar() {
           setLoading(false);
           return;
         }
-        console.log("UserId");
-        console.log(userId);
-        console.log("role");
-        console.log(role);
 
         // Check if the user has an Agency role
         let isAgencyRole = false;
         if (role === "RENTER") {
           isAgencyRole = true;
         }
-        console.log("rolebool");
-        console.log(isAgencyRole);
-
         if (isAgencyRole) {
           const agencyEndpoint = `${endpoint}/agencies/user/${userId}/hasAgency`;
           const agencyResponse = await fetch(agencyEndpoint, {
@@ -80,7 +73,6 @@ export default function BottomNavigationBar() {
           }
 
           const isCreatedStatus = await agencyResponse.json();
-          console.log("Fetched isCreated value:", isCreatedStatus);
 
           // Update states based on the results
           setIsAgency(true);
@@ -105,11 +97,6 @@ export default function BottomNavigationBar() {
   if (loading) {
     return <LoadingFallback />;
   }
-
-  console.log("Results");
-  console.log(isAgency);
-  console.log(isCreated);
-
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
