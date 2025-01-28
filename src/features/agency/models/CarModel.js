@@ -1,5 +1,4 @@
 const CarModel = {
-  modelId: "",
   color: "",
   year: "",
   pricePerDay: "",

@@ -1,132 +1,262 @@
-import React from "react"
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from "react-native"
-import { Car, Users, Fuel, DollarSign, Calendar, ArrowLeft } from "lucide-react-native"
+import React, { useRef } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  Animated,
+  Dimensions,
+  StatusBar,
+} from "react-native";
+import {
+  Car,
+  Users,
+  Fuel,
+  DollarSign,
+  Calendar,
+  ArrowLeft,
+} from "lucide-react-native";
+import { LinearGradient } from "expo-linear-gradient";
+
+const { width, height } = Dimensions.get("window");
 
 const CarDetailsScreen = ({ route, navigation }) => {
-  const { car } = route.params
+  const { car } = route.params;
+  const scrollY = useRef(new Animated.Value(0)).current;
+
+  const headerTranslate = scrollY.interpolate({
+    inputRange: [0, 200],
+    outputRange: [0, -100],
+    extrapolate: "clamp",
+  });
+
+  const imageOpacity = scrollY.interpolate({
+    inputRange: [0, 100, 200],
+    outputRange: [1, 0.5, 0.2],
+    extrapolate: "clamp",
+  });
+
+  const titleOpacity = scrollY.interpolate({
+    inputRange: [0, 100],
+    outputRange: [0, 1],
+    extrapolate: "clamp",
+  });
 
   return (
     <View style={styles.container}>
-      <ScrollView>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <ArrowLeft size={24} color="#1E90FF" />
+      <StatusBar barStyle="light-content" />
+      <View style={styles.header}>
+        <Animated.View
+          style={[
+            styles.imageContainer,
+            { transform: [{ translateY: headerTranslate }] },
+          ]}
+        >
+          <Image source={{ uri: car.imageUrl }} style={styles.carImage} />
+        </Animated.View>
+        <LinearGradient
+          colors={["rgba(0,0,0,0.6)", "rgba(0,0,0,0.3)", "transparent"]}
+          style={StyleSheet.absoluteFill}
+        />
+        <View style={styles.headerContent}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
+          >
+            <ArrowLeft size={24} color="#FFFFFF" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Car Details</Text>
-          <View style={{ width: 24 }} />
+          <Animated.Text
+            style={[styles.headerTitle, { opacity: titleOpacity }]}
+          >
+            {car.brandName} {car.modelName}
+          </Animated.Text>
         </View>
+      </View>
 
-        <Image source={{ uri: car.imageUrl }} style={styles.carImage} />
-
+      <Animated.ScrollView
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true }
+        )}
+        scrollEventThrottle={16}
+        style={styles.scrollView}
+      >
         <View style={styles.detailsContainer}>
+          <Text style={styles.brandName}>{car.brandName}</Text>
+          <Text style={styles.modelName}>{car.modelName}</Text>
           <Text style={styles.carCategory}>{car.category}</Text>
           <Text style={styles.carDetails}>
             {car.color} - {car.year}
           </Text>
 
-          <View style={styles.featureRow}>
-            <View style={styles.featureItem}>
-              <Users size={20} color="#1E90FF" />
-              <Text style={styles.featureText}>{car.nbrPersonnes} Persons</Text>
-            </View>
-            <View style={styles.featureItem}>
-              <Fuel size={20} color="#1E90FF" />
-              <Text style={styles.featureText}>{car.fuelType}</Text>
-            </View>
+          <View style={styles.featureContainer}>
+            <FeatureItem
+              icon={<Users size={24} color="#FFFFFF" />}
+              text={`${car.nbrPersonnes} Persons`}
+            />
+            <FeatureItem
+              icon={<Fuel size={24} color="#FFFFFF" />}
+              text={car.fuelType}
+            />
+            <FeatureItem
+              icon={<Calendar size={24} color="#FFFFFF" />}
+              text={car.year.toString()}
+            />
+            <FeatureItem
+              icon={<DollarSign size={24} color="#FFFFFF" />}
+              text={`$${car.pricePerDay}/day`}
+            />
           </View>
-
-          <View style={styles.featureRow}>
-            <View style={styles.featureItem}>
-              <Calendar size={20} color="#1E90FF" />
-              <Text style={styles.featureText}>{car.year}</Text>
-            </View>
-            <View style={styles.featureItem}>
-              <DollarSign size={20} color="#1E90FF" />
-              <Text style={styles.featureText}>${car.pricePerDay}/day</Text>
-            </View>
-          </View>
-
-          <Text style={styles.description}>
-            This {car.category} car is perfect for your next trip. With its spacious interior that can accommodate{" "}
-            {car.nbrPersonnes} persons and {car.fuelType} engine, it offers both comfort and efficiency.
-          </Text>
         </View>
-      </ScrollView>
-
-      <TouchableOpacity style={styles.rentButton}>
-        <Text style={styles.rentButtonText}>Rent Now</Text>
-      </TouchableOpacity>
+      </Animated.ScrollView>
     </View>
-  )
-}
+  );
+};
+
+const FeatureItem = ({ icon, text }) => (
+  <View style={styles.featureItem}>
+    <LinearGradient
+      colors={["#007BFF", "#0056D2"]}
+      style={styles.featureIconContainer}
+    >
+      {icon}
+    </LinearGradient>
+    <Text style={styles.featureText}>{text}</Text>
+  </View>
+);
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F0F8FF",
+    backgroundColor: "#F9FAFB",
   },
   header: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: height * 0.5,
+    overflow: "hidden",
+    zIndex: 10,
+  },
+  headerContent: {
+    ...StyleSheet.absoluteFillObject,
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    padding: 15,
-    backgroundColor: "#FFFFFF",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingTop: 40,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.3)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
-    color: "#1E90FF",
+    color: "#FFFFFF",
+  },
+  imageContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: height * 0.5,
+    overflow: "hidden",
   },
   carImage: {
     width: "100%",
-    height: 250,
+    height: "100%",
+    resizeMode: "cover",
+  },
+  scrollView: {
+    flex: 1,
+    backgroundColor: "transparent",
   },
   detailsContainer: {
-    padding: 20,
+    marginTop: height * 0.5,
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    paddingHorizontal: 20,
+    paddingTop: 30,
+    paddingBottom: 100,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 5,
   },
-  carCategory: {
-    fontSize: 24,
+  brandName: {
+    fontSize: 32,
     fontWeight: "bold",
     color: "#1E90FF",
     marginBottom: 5,
+    textTransform: "uppercase",
+    textAlign: "center",
+    letterSpacing: 2,
+  },
+  modelName: {
+    fontSize: 26,
+    fontWeight: "600",
+    color: "#4A4A4A",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  carCategory: {
+    fontSize: 20,
+    fontWeight: "500",
+    color: "#6C757D",
+    textAlign: "center",
+    marginBottom: 10,
   },
   carDetails: {
-    fontSize: 16,
+    fontSize: 18,
     color: "#4A4A4A",
-    marginBottom: 15,
+    marginBottom: 20,
+    textAlign: "center",
   },
-  featureRow: {
+  featureContainer: {
     flexDirection: "row",
+    flexWrap: "wrap",
     justifyContent: "space-between",
-    marginBottom: 15,
+    marginVertical: 20,
+    backgroundColor: "#F0F8FF",
+    borderRadius: 15,
+    padding: 15,
   },
   featureItem: {
-    flexDirection: "row",
+    width: "48%",
+    marginBottom: 15,
     alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 10,
+    padding: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  featureIconContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 10,
   },
   featureText: {
-    marginLeft: 10,
     fontSize: 16,
     color: "#4A4A4A",
+    textAlign: "center",
   },
-  description: {
-    fontSize: 16,
-    color: "#4A4A4A",
-    lineHeight: 24,
-    marginTop: 15,
-  },
-  rentButton: {
-    backgroundColor: "#1E90FF",
-    padding: 15,
-    margin: 20,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  rentButtonText: {
-    color: "#FFFFFF",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-})
+});
 
-export default CarDetailsScreen
+export default CarDetailsScreen;

@@ -79,6 +79,16 @@ export const useCarController = (initialAgencyId) => {
     }
   };
 
+  const handleDeleteCar = async (carId) => {
+    try {
+      await CarService.deleteCar(carId)
+      return true
+    } catch (error) {
+      console.error("Error deleting car:", error)
+      throw error
+    }
+  };
+
   return {
     brands,
     carTypes,
@@ -89,5 +99,6 @@ export const useCarController = (initialAgencyId) => {
     handleModelChange,
     handleInputChange,
     handleAddCar,
+    handleDeleteCar,
   };
 };

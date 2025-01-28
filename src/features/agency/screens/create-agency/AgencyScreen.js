@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import AgencyStyles from "./AgencyStyles";
-import AgencyController from "../../controllers/AgencyController";
+import { useAgencyController } from "../../controllers/AgencyController";
 
 const AgencyScreen = ({ navigation }) => {
   const {
@@ -18,8 +18,6 @@ const AgencyScreen = ({ navigation }) => {
     setAgencyName,
     description,
     setDescription,
-    phone,
-    setPhone,
     searchPlace,
     setSearchPlace,
     image,
@@ -29,8 +27,8 @@ const AgencyScreen = ({ navigation }) => {
     selectedLocation,
     setSelectedLocation,
     loading,
-    handleCreateAgency, // Original create agency function
-  } = AgencyController();
+    handleCreateAgency,
+  } = useAgencyController();
 
   const handleCreateAgencyAndNavigate = async () => {
     try {
@@ -67,15 +65,6 @@ const AgencyScreen = ({ navigation }) => {
           value={description}
           onChangeText={setDescription}
           multiline
-        />
-
-        <Text style={AgencyStyles.label}>Phone Number</Text>
-        <TextInput
-          style={AgencyStyles.input}
-          placeholder="Enter Phone Number"
-          value={phone}
-          onChangeText={setPhone}
-          keyboardType="phone-pad"
         />
 
         <Text style={AgencyStyles.label}>Agency Image</Text>

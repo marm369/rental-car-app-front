@@ -25,6 +25,7 @@ export const CarService = {
 
   addCar: async (carData) => {
     try {
+      console.log(carData);
       const response = await axios.post(`${endpoint}/cars`, carData);
       return response.data;
     } catch (error) {
@@ -53,19 +54,40 @@ export const CarService = {
     }
   },
 
-
   getCarsByAgence: async () => {
     try {
-        const username = await AsyncStorage.getItem("username");
+      const username = await AsyncStorage.getItem("username");
 
       if (!username) {
         throw new Error("No username found in AsyncStorage.");
       }
       const response = await axios.get(`${endpoint}/users/${username}/cars`);
-      return response.data; 
+      return response.data;
     } catch (error) {
       console.error("Error fetching cars:", error);
       throw error;
+    }
+  },
+  getBrandModelByCarId: async (carId) => {
+    try {
+      const response = await axios.get(`${endpoint}/cars/${carId}/brand-model`);
+      console.log(response.data);
+      return response.data; // Retourne { brand: ..., model: ... }
+    } catch (error) {
+      console.error(
+        `Error fetching brand and model for car ID ${carId}:`,
+        error
+      );
+      throw error;
+    }
+  },
+  deleteCar: async (carId) => {
+    try {
+      const response = await axios.delete(`${endpoint}/cars/delete/${carId}`)
+      return response.data
+    } catch (error) {
+      console.error("Error deleting car:", error)
+      throw error
     }
   },
 };

@@ -6,26 +6,35 @@ import * as FileSystem from "expo-file-system";
 import AgencyService from "../services/AgencyService";
 import { useNavigation } from "@react-navigation/native";
 
-const AgencyController = () => {
+export const useAgencyController = () => {
   const navigation = useNavigation();
   const [agencyName, setAgencyName] = useState("");
   const [description, setDescription] = useState("");
-  const [phone, setPhone] = useState("");
   const [searchPlace, setSearchPlace] = useState("");
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [mapRegion, setMapRegion] = useState(null);
   const [loading, setLoading] = useState(true);
   const [image, setImage] = useState(null);
+  const [agencyInfo, setAgencyInfo] = useState({ name: "", imageBase64: "" });
+
+  const fetchAgencyInfo = useCallback(async () => {
+    try {
+      const info = await AgencyService.getAgencyInfo();
+      setAgencyInfo(info);
+    } catch (error) {
+      console.error("Error fetching agency info:", error);
+    }
+  }, []);
 
   useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
+    const initializeLocation = async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         Alert.alert("Permission Denied", "Location permission is required.");
         return;
       }
 
-      let location = await Location.getCurrentPositionAsync({});
+      const location = await Location.getCurrentPositionAsync({});
       const currentLocation = {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
@@ -39,8 +48,11 @@ const AgencyController = () => {
       });
       setMapRegion(currentLocation);
       setLoading(false);
-    })();
-  }, []);
+    };
+
+    fetchAgencyInfo();
+    initializeLocation();
+  }, [fetchAgencyInfo]);
 
   const handleImagePick = async () => {
     const permissionResult =
@@ -75,22 +87,25 @@ const AgencyController = () => {
   };
 
   const handleCreateAgency = async () => {
-    const result = await AgencyService.createAgency({
-      agencyName,
-      description,
-      phone,
-      selectedLocation,
-      image,
-    });
-    console.log(result.id);
-
-    if (result && result.id) {
-      navigation.navigate("SuccessScreen", {
-        imageSource: require("../../../../assets/images/store-created.jpeg"),
-        title: "Agency Created!",
-        subTitle: "Your agency has been successfully created.",
-        navigateTo: "AddCar",
+    try {
+      const result = await AgencyService.createAgency({
+        agencyName,
+        description,
+        selectedLocation,
+        image,
       });
+
+      if (result && result.id) {
+        navigation.navigate("SuccessScreen", {
+          imageSource: require("../../../../assets/images/store-created.jpeg"),
+          title: "Agency Created!",
+          subTitle: "Your agency has been successfully created.",
+          navigateTo: "AddCar",
+        });
+      }
+    } catch (error) {
+      console.error("Error in handleCreateAgency:", error);
+      Alert.alert("Error", "Failed to create agency. Please try again.");
     }
   };
 
@@ -99,8 +114,6 @@ const AgencyController = () => {
     setAgencyName,
     description,
     setDescription,
-    phone,
-    setPhone,
     searchPlace,
     setSearchPlace,
     image,
@@ -111,7 +124,7 @@ const AgencyController = () => {
     setSelectedLocation,
     loading,
     handleCreateAgency,
+    agencyInfo,
+    fetchAgencyInfo,
   };
 };
-
-export default AgencyController;

@@ -1,12 +1,12 @@
-import React from "react";
+import React, { useCallback } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   Image,
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  BackHandler,
 } from "react-native";
 import { MaterialIcons, Feather } from "@expo/vector-icons";
 import ProfileController from "../controllers/ProfileController";
@@ -40,19 +40,19 @@ const ProfileScreen = () => {
       <View style={ProfileStyles.infoSection}>
         <Text style={ProfileStyles.infoTitle}>Personal Information</Text>
         <View style={ProfileStyles.infoRow}>
-          <MaterialIcons name="person" size={24} color="#3B82F6" />
+          <MaterialIcons name="person" size={24} color="#1E90FF" />
           <Text style={ProfileStyles.infoText}>
             {userInfo?.firstName || "N/A"} {userInfo?.lastName || "N/A"}
           </Text>
         </View>
 
         <View style={ProfileStyles.infoRow}>
-          <MaterialIcons name="email" size={24} color="#3B82F6" />
+          <MaterialIcons name="email" size={24} color="#1E90FF" />
           <Text style={ProfileStyles.infoText}>{userInfo?.email || "N/A"}</Text>
         </View>
 
         <View style={ProfileStyles.infoRow}>
-          <MaterialIcons name="phone" size={24} color="#3B82F6" />
+          <MaterialIcons name="phone" size={24} color="#1E90FF" />
           <Text style={ProfileStyles.infoText}>
             {userInfo?.phoneNumber || "N/A"}
           </Text>

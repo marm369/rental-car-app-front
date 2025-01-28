@@ -70,7 +70,10 @@ const AddCarScreen = ({ navigation, route }) => {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.header}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
@@ -271,6 +274,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
     marginTop: 20,
+    marginBottom: 20,
   },
   addButtonText: {
     color: "#fff",
@@ -280,4 +284,3 @@ const styles = StyleSheet.create({
 });
 
 export default AddCarScreen;
-                                           

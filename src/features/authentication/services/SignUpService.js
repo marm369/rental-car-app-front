@@ -10,7 +10,6 @@ export const handleCreateAccountRequest = async (formValues) => {
 
     // Construct the full URL for the API endpoint
     const apiUrl = `${endpoint}/users/register`;
-    console.log("API URL:", apiUrl); // Log the full URL for debugging
 
     // Create the payload with necessary properties
     const payload = {
@@ -23,8 +22,6 @@ export const handleCreateAccountRequest = async (formValues) => {
       role: formValues.role,
       picture: formValues.profileImage,
     };
-
-    console.log("Payload:", JSON.stringify(payload, null, 2));
 
     // Set up request options with timeout
     const controller = new AbortController();

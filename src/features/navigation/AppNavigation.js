@@ -10,7 +10,7 @@ import AgencyDetailsScreen from "../geolocalisation/screens/AgencyDetailsScreen"
 import CarDetailsScreen from "../agency/screens/display-cars/CarDetailsScreen";
 import AddCarScreen from "../agency/screens/add-car/AddCarScreen";
 import ChatScreen from "../home/screens/home-components/Chat";
-
+import HomeScreen from "../home/screens/HomeScreen";
 const Stack = createNativeStackNavigator();
 export default function AppNavigation() {
   return (
@@ -29,7 +29,7 @@ export default function AppNavigation() {
         <Stack.Screen
           name="BottomNavigationBar"
           component={BottomNavigationBar}
-          options={{ headerShown: false }}
+          options={{ headerShown: false, gestureEnabled: false }}
         />
         <Stack.Screen
           name="SignUp"
@@ -60,6 +60,11 @@ export default function AppNavigation() {
         <Stack.Screen
           name="CarDetails"
           component={CarDetailsScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Home"
+          component={HomeScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

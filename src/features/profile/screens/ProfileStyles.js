@@ -6,7 +6,7 @@ const ProfileStyles = StyleSheet.create({
     backgroundColor: "#E6F0FF", // Subtle blue background
   },
   header: {
-    backgroundColor: "#3B82F6", // Vibrant blue for the header
+    backgroundColor: "#1E90FF", // Vibrant blue for the header
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     alignItems: "center",
@@ -36,7 +36,7 @@ const ProfileStyles = StyleSheet.create({
   infoTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#3B82F6", // Blue for titles
+    color: "#1E90FF", 
     marginBottom: 10,
   },
   infoRow: {

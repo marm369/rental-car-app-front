@@ -181,7 +181,7 @@ function getIconName(routeName, isSelected) {
     Home: ["home", "home-outline"],
     Map: ["map", "map-outline"],
     Reservation: ["calendar", "calendar-outline"],
-    Agency: ["agency", "storefront-outline"],
+    Agency: ["storefront", "storefront-outline"],
     Cars: ["car", "car-outline"],
     Profile: ["person", "person-outline"],
   };

@@ -1,4 +1,5 @@
-const endpoint = "http://192.168.0.108:3000";
-const API_BASE_URL = "http://192.168.0.108:3000";
+const endpoint = "http://192.168.8.49:3000";
+const API_BASE_URL = "http://192.168.8.49:3000";
 
+// 172.20.10.2
 export { endpoint, API_BASE_URL };
