@@ -7,10 +7,13 @@ import BottomNavigationBar from "../navigation/BottomNavigationBar";
 import SignUpScreen from "../authentication/screens/signup/SignUpScreen";
 import SuccessScreen from "../../common/components/SuccessScreen";
 import AgencyDetailsScreen from "../geolocalisation/screens/AgencyDetailsScreen";
-import CarDetailsScreen from "../agency/screens/display-cars/CarDetailsScreen";
-import AddCarScreen from "../agency/screens/add-car/AddCarScreen";
+import CarDetailsScreen from "../car/screens/display-cars/CarDetailsScreen";
+import AddCarScreen from "../car/screens/add-car/AddCarScreen";
 import ChatScreen from "../home/screens/home-components/Chat";
 import HomeScreen from "../home/screens/HomeScreen";
+import AgencyScreen from "../agency/screens/create-agency/AgencyScreen";
+import AgencyCarsScreen from "../car/screens/display-cars/AgencyCarsScreen";
+
 const Stack = createNativeStackNavigator();
 export default function AppNavigation() {
   return (
@@ -65,6 +68,16 @@ export default function AppNavigation() {
         <Stack.Screen
           name="Home"
           component={HomeScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Agency"
+          component={AgencyScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="AgencyCars"
+          component={AgencyCarsScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

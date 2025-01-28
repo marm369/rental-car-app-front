@@ -12,7 +12,7 @@ import MapView, { Marker } from "react-native-maps";
 import AgencyStyles from "./AgencyStyles";
 import { useAgencyController } from "../../controllers/AgencyController";
 
-const AgencyScreen = ({ navigation }) => {
+const AgencyScreen = () => {
   const {
     agencyName,
     setAgencyName,

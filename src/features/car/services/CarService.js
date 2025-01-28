@@ -47,7 +47,7 @@ export const CarService = {
       const response = await axios.get(
         `${endpoint}/agencies/agency/${username}`
       );
-      return response.data; // Assuming the response has { agencyId: ... }
+      return response.data;
     } catch (error) {
       console.error("Error fetching agency ID:", error);
       throw error;
@@ -72,7 +72,7 @@ export const CarService = {
     try {
       const response = await axios.get(`${endpoint}/cars/${carId}/brand-model`);
       console.log(response.data);
-      return response.data; // Retourne { brand: ..., model: ... }
+      return response.data;
     } catch (error) {
       console.error(
         `Error fetching brand and model for car ID ${carId}:`,
@@ -83,11 +83,11 @@ export const CarService = {
   },
   deleteCar: async (carId) => {
     try {
-      const response = await axios.delete(`${endpoint}/cars/delete/${carId}`)
-      return response.data
+      const response = await axios.delete(`${endpoint}/cars/delete/${carId}`);
+      return response.data;
     } catch (error) {
-      console.error("Error deleting car:", error)
-      throw error
+      console.error("Error deleting car:", error);
+      throw error;
     }
   },
 };

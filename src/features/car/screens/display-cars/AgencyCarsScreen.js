@@ -9,8 +9,8 @@ import {
   Alert,
 } from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import { CarService } from "../../services/CarService";
-import { AgencyService } from "../../services/AgencyService";
+import { CarService } from "../../../car/services/CarService";
+import { AgencyService } from "../../../agency/services/AgencyService";
 import { Users, Fuel, Plus, Trash2 } from "lucide-react-native";
 
 const AgencyCarsScreen = () => {

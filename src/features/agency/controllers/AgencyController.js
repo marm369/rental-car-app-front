@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Alert } from "react-native";
 import * as Location from "expo-location";
 import * as ImagePicker from "expo-image-picker";
@@ -15,16 +15,6 @@ export const useAgencyController = () => {
   const [mapRegion, setMapRegion] = useState(null);
   const [loading, setLoading] = useState(true);
   const [image, setImage] = useState(null);
-  const [agencyInfo, setAgencyInfo] = useState({ name: "", imageBase64: "" });
-
-  const fetchAgencyInfo = useCallback(async () => {
-    try {
-      const info = await AgencyService.getAgencyInfo();
-      setAgencyInfo(info);
-    } catch (error) {
-      console.error("Error fetching agency info:", error);
-    }
-  }, []);
 
   useEffect(() => {
     const initializeLocation = async () => {
@@ -50,11 +40,10 @@ export const useAgencyController = () => {
       setLoading(false);
     };
 
-    fetchAgencyInfo();
     initializeLocation();
-  }, [fetchAgencyInfo]);
+  }, []);
 
-  const handleImagePick = async () => {
+  const handleImagePick = useCallback(async () => {
     const permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
 
@@ -76,17 +65,25 @@ export const useAgencyController = () => {
       });
       setImage(`data:image/png;base64,${base64}`);
     }
-  };
+  }, []);
 
-  const handleSearch = async () => {
-    await AgencyService.searchPlace(
-      searchPlace,
-      setSelectedLocation,
-      setMapRegion
-    );
-  };
+  const handleSearch = useCallback(async () => {
+    try {
+      const result = await AgencyService.searchPlace(searchPlace);
+      if (result) {
+        setSelectedLocation(result);
+        setMapRegion({
+          ...result,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        });
+      }
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    }
+  }, [searchPlace]);
 
-  const handleCreateAgency = async () => {
+  const handleCreateAgency = useCallback(async () => {
     try {
       const result = await AgencyService.createAgency({
         agencyName,
@@ -100,14 +97,14 @@ export const useAgencyController = () => {
           imageSource: require("../../../../assets/images/store-created.jpeg"),
           title: "Agency Created!",
           subTitle: "Your agency has been successfully created.",
-          navigateTo: "AddCar",
+          navigateTo: "BottomNavigationBar",
         });
       }
     } catch (error) {
       console.error("Error in handleCreateAgency:", error);
       Alert.alert("Error", "Failed to create agency. Please try again.");
     }
-  };
+  }, [agencyName, description, selectedLocation, image, navigation]);
 
   return {
     agencyName,
@@ -124,7 +121,5 @@ export const useAgencyController = () => {
     setSelectedLocation,
     loading,
     handleCreateAgency,
-    agencyInfo,
-    fetchAgencyInfo,
   };
 };

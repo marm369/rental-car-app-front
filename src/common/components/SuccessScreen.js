@@ -7,11 +7,19 @@ const SuccessScreen = () => {
   const route = useRoute();
 
   // Récupération des params
-  const { imageSource, navigateTo, title, subTitle ,storeId} = route.params || {};
+  const { imageSource, navigateTo, title, subTitle, storeId } =
+    route.params || {};
 
   const handleNavigation = () => {
     if (navigateTo) {
-      navigation.navigate(navigateTo,{storeId});
+      if (navigateTo === "BottomNavigationBar") {
+        navigation.navigate("BottomNavigationBar", {
+          screen: "AgencyCars",
+        });
+      } else {
+        // Autre navigation normale
+        navigation.navigate(navigateTo);
+      }
     }
   };
 

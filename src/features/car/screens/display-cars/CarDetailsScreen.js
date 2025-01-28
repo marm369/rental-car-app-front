@@ -4,14 +4,12 @@ import {
   Text,
   StyleSheet,
   Image,
-  ScrollView,
   TouchableOpacity,
   Animated,
   Dimensions,
   StatusBar,
 } from "react-native";
 import {
-  Car,
   Users,
   Fuel,
   DollarSign,
@@ -20,7 +18,7 @@ import {
 } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
-const { width, height } = Dimensions.get("window");
+const { height } = Dimensions.get("window");
 
 const CarDetailsScreen = ({ route, navigation }) => {
   const { car } = route.params;

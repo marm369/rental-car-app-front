@@ -3,10 +3,9 @@ import { Alert } from "react-native";
 import { endpoint } from "../../../config/config";
 
 export const AgencyService = {
-  async searchPlace(searchPlace, setSelectedLocation, setMapRegion) {
+  async searchPlace(searchPlace) {
     if (!searchPlace.trim()) {
-      Alert.alert("Error", "Please enter a location to search!");
-      return;
+      throw new Error("Please enter a location to search!");
     }
 
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
@@ -16,26 +15,21 @@ export const AgencyService = {
     try {
       const response = await fetch(url);
       if (!response.ok) {
-        Alert.alert("Error", "Unable to connect to the search service.");
-        return;
+        throw new Error("Unable to connect to the search service.");
       }
 
       const data = await response.json();
       if (data.length > 0) {
         const { lat, lon } = data[0];
-        const newLocation = {
-          latitude: parseFloat(lat),
-          longitude: parseFloat(lon),
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
+        return {
+          latitude: Number.parseFloat(lat),
+          longitude: Number.parseFloat(lon),
         };
-        setSelectedLocation(newLocation);
-        setMapRegion(newLocation);
       } else {
-        Alert.alert("Error", "Location not found.");
+        throw new Error("Location not found.");
       }
     } catch (error) {
-      Alert.alert("Error", `An error occurred: ${error.message}`);
+      throw new Error(`An error occurred: ${error.message}`);
     }
   },
 
@@ -46,15 +40,13 @@ export const AgencyService = {
       !agencyData.selectedLocation ||
       !agencyData.image
     ) {
-      Alert.alert("Error", "Please fill all the fields and select an image!");
-      return false;
+      throw new Error("Please fill all the fields and select an image!");
     }
 
     try {
       const userId = await AsyncStorage.getItem("userId");
       if (!userId) {
-        Alert.alert("Error", "Unable to find userId in local storage!");
-        return false;
+        throw new Error("Unable to find userId in local storage!");
       }
 
       const payload = {
@@ -68,10 +60,8 @@ export const AgencyService = {
           ],
         },
         imageBase64: agencyData.image,
-        userId: parseInt(userId, 10),
+        userId: Number.parseInt(userId, 10),
       };
-
-      console.log(`Sending payload: ${JSON.stringify(payload, null, 2)}`);
 
       const response = await fetch(`${endpoint}/agencies/create`, {
         method: "POST",
@@ -82,16 +72,13 @@ export const AgencyService = {
       });
 
       if (!response.ok) {
-        Alert.alert("Error", "Failed to create agency. Please try again.");
-        return null;
+        throw new Error("Failed to create agency. Please try again.");
       }
 
       const responseData = await response.json();
-      Alert.alert("Success", "Agency created successfully!");
       return responseData;
     } catch (error) {
-      Alert.alert("Error", `An error occurred: ${error.message}`);
-      return null;
+      throw new Error(`An error occurred: ${error.message}`);
     }
   },
 

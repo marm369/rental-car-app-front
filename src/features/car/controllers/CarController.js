@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { CarService } from "../services/CarService";
 import CarModel from "../models/CarModel";
+import AgencyService from "../../agency/services/AgencyService";
 
 export const useCarController = (initialAgencyId) => {
   const [brands, setBrands] = useState([]);
@@ -13,8 +14,17 @@ export const useCarController = (initialAgencyId) => {
     ...CarModel,
     agencyId: initialAgencyId,
   });
-  const [isAgencyIdLoading, setIsAgencyIdLoading] = useState(!initialAgencyId); // Track agencyId loading state
+  const [isAgencyIdLoading, setIsAgencyIdLoading] = useState(!initialAgencyId);
+  const [agencyInfo, setAgencyInfo] = useState({ name: "", imageBase64: "" });
 
+  const fetchAgencyInfo = useCallback(async () => {
+    try {
+      const info = await AgencyService.getAgencyInfo();
+      setAgencyInfo(info);
+    } catch (error) {
+      console.error("Error fetching agency info:", error);
+    }
+  }, []);
   useEffect(() => {
     if (!initialAgencyId) {
       fetchAgencyId(); // Fetch agencyId only if not provided
@@ -23,7 +33,8 @@ export const useCarController = (initialAgencyId) => {
     }
     fetchBrands();
     fetchCarTypes();
-  }, []);
+    fetchAgencyInfo();
+  }, [fetchAgencyInfo]);
 
   const fetchAgencyId = async () => {
     try {
@@ -81,11 +92,11 @@ export const useCarController = (initialAgencyId) => {
 
   const handleDeleteCar = async (carId) => {
     try {
-      await CarService.deleteCar(carId)
-      return true
+      await CarService.deleteCar(carId);
+      return true;
     } catch (error) {
-      console.error("Error deleting car:", error)
-      throw error
+      console.error("Error deleting car:", error);
+      throw error;
     }
   };
 
@@ -100,5 +111,7 @@ export const useCarController = (initialAgencyId) => {
     handleInputChange,
     handleAddCar,
     handleDeleteCar,
+    agencyInfo,
+    fetchAgencyInfo,
   };
 };

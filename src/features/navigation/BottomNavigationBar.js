@@ -25,7 +25,7 @@ const AgencyScreen = React.lazy(() =>
   import("../agency/screens/create-agency/AgencyScreen")
 );
 const AgencyCarsScreen = React.lazy(() =>
-  import("../agency/screens/display-cars/AgencyCarsScreen")
+  import("../car/screens/display-cars/AgencyCarsScreen")
 );
 const ReservationScreen = React.lazy(() =>
   import("../reservation/screens/ResponsesScreen")
@@ -54,7 +54,6 @@ export default function BottomNavigationBar() {
           return;
         }
 
-        // Check if the user has an Agency role
         let isAgencyRole = false;
         if (role === "RENTER") {
           isAgencyRole = true;
@@ -74,11 +73,9 @@ export default function BottomNavigationBar() {
 
           const isCreatedStatus = await agencyResponse.json();
 
-          // Update states based on the results
           setIsAgency(true);
           setIsCreated(isCreatedStatus.hasAgency);
         } else {
-          // If the user is not an Agency
           setIsAgency(false);
           setIsCreated(false);
         }
@@ -87,13 +84,12 @@ export default function BottomNavigationBar() {
         setIsAgency(false);
         setIsCreated(false);
       } finally {
-        setLoading(false); // Always stop the loading indicator
+        setLoading(false);
       }
     };
     fetchAgencyStatus();
   }, []);
 
-  // Display a loading indicator while data is being fetched
   if (loading) {
     return <LoadingFallback />;
   }
