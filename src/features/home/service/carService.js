@@ -1,33 +1,32 @@
-// services/carService.js
-import { endpoint } from '../../../config/config';
+import { endpoint } from "../../../config/config";
+import axios from "axios";
 
-import axios from 'axios';
-
-const API_FILTER_URL = `${endpoint}/cars/filter`;
-const API_GET_ALL_CARS_URL = `${endpoint}/cars/getAllCars`;
-
-export const applyCarFilters = async (filters) => {
+export const getAllCars = async () => {
   try {
-    const response = await axios.post(API_FILTER_URL, filters, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
+    const response = await axios.get(`${endpoint}/cars/getAllCars`);
     return response.data;
   } catch (error) {
-    console.error('Erreur lors de l\'appel API :', error);
+    console.error("Erreur lors de la récupération des voitures (1)", error);
     throw error;
   }
 };
 
-
-export const getAllCars = async () => {
+export const getLatestCars = async () => {
   try {
-    const response = await axios.get(API_GET_ALL_CARS_URL);
+    const response = await axios.get(`${endpoint}/cars/latest`);
     return response.data;
   } catch (error) {
-    console.error("Erreur lors de la récupération des voitures", error);
+    console.error("Error fetching latest cars:", error);
+    throw error;
+  }
+};
+
+export const getCarRentalDetails = async (carId) => {
+  try {
+    const response = await axios.get(`${endpoint}/cars/${carId}/details`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching car rental details:", error);
     throw error;
   }
 };

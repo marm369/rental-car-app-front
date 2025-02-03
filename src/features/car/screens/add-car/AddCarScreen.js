@@ -1,4 +1,3 @@
-import React from "react";
 import {
   View,
   Text,
@@ -10,13 +9,14 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   Platform,
-} from "react-native";
-import { Picker } from "@react-native-picker/picker";
-import * as ImagePicker from "expo-image-picker";
-import { useCarController } from "../../controllers/CarController";
+} from "react-native"
+import { Picker } from "@react-native-picker/picker"
+import * as ImagePicker from "expo-image-picker"
+import * as FileSystem from "expo-file-system"
+import { useCarController } from "../../controllers/CarController"
 
 const AddCarScreen = ({ navigation, route }) => {
-  const { agencyId } = route.params || {};
+  const { agencyId } = route.params || {}
   const {
     brands,
     carTypes,
@@ -26,18 +26,14 @@ const AddCarScreen = ({ navigation, route }) => {
     handleModelChange,
     handleInputChange,
     handleAddCar,
-  } = useCarController(agencyId);
+  } = useCarController(agencyId)
 
   const handlePickImage = async () => {
-    const permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
 
     if (!permissionResult.granted) {
-      Alert.alert(
-        "Permission Denied",
-        "You need to allow access to your gallery!"
-      );
-      return;
+      Alert.alert("Permission Denied", "You need to allow access to your gallery!")
+      return
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -45,40 +41,36 @@ const AddCarScreen = ({ navigation, route }) => {
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
-    });
+    })
 
-    if (!result.canceled) {
-      handleInputChange("imageUrl", result.assets[0].uri);
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      try {
+        const base64 = await FileSystem.readAsStringAsync(result.assets[0].uri, {
+          encoding: FileSystem.EncodingType.Base64,
+        })
+        handleInputChange("imageUrl", `data:image/jpeg;base64,${base64}`)
+      } catch (error) {
+        console.error("Error reading file:", error)
+        Alert.alert("Error", "Failed to process the image. Please try again.")
+      }
     }
-  };
+  }
 
   const onAddCar = async () => {
     try {
-      await handleAddCar();
-      Alert.alert("Success", "Car added successfully!");
-      navigation.goBack();
+      await handleAddCar()
+      Alert.alert("Success", "Car added successfully!")
+      navigation.goBack()
     } catch (error) {
-      Alert.alert(
-        "Error",
-        error.message || "Failed to add car. Please try again."
-      );
+      Alert.alert("Error", error.message || "Failed to add car. Please try again.")
     }
-  };
+  }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scrollContainer}
-        showsVerticalScrollIndicator={false}
-      >
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.backArrow}
-          >
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backArrow}>
             <Text style={styles.backArrowText}>←</Text>
           </TouchableOpacity>
           <Text style={styles.title}>Add New Car</Text>
@@ -92,11 +84,7 @@ const AddCarScreen = ({ navigation, route }) => {
         >
           <Picker.Item label="Choose a brand" value="" />
           {brands.map((brand) => (
-            <Picker.Item
-              key={brand.id}
-              label={brand.name}
-              value={brand.id.toString()}
-            />
+            <Picker.Item key={brand.id} label={brand.name} value={brand.id.toString()} />
           ))}
         </Picker>
 
@@ -109,11 +97,7 @@ const AddCarScreen = ({ navigation, route }) => {
         >
           <Picker.Item label="Choose a model" value="" />
           {selectedBrand?.models.map((model) => (
-            <Picker.Item
-              key={model.id}
-              label={model.name}
-              value={model.id.toString()}
-            />
+            <Picker.Item key={model.id} label={model.name} value={model.id.toString()} />
           ))}
         </Picker>
 
@@ -155,9 +139,7 @@ const AddCarScreen = ({ navigation, route }) => {
         <Text style={styles.label}>Category</Text>
         <Picker
           selectedValue={carData.category}
-          onValueChange={(itemValue) =>
-            handleInputChange("category", itemValue)
-          }
+          onValueChange={(itemValue) => handleInputChange("category", itemValue)}
           style={styles.picker}
         >
           <Picker.Item label="Choose a category" value="" />
@@ -169,9 +151,7 @@ const AddCarScreen = ({ navigation, route }) => {
         <Text style={styles.label}>Fuel Type</Text>
         <Picker
           selectedValue={carData.fuelType}
-          onValueChange={(itemValue) =>
-            handleInputChange("fuelType", itemValue)
-          }
+          onValueChange={(itemValue) => handleInputChange("fuelType", itemValue)}
           style={styles.picker}
         >
           <Picker.Item label="Choose a fuel type" value="" />
@@ -183,7 +163,7 @@ const AddCarScreen = ({ navigation, route }) => {
         <Text style={styles.label}>Car Image</Text>
         <TouchableOpacity style={styles.imagePicker} onPress={handlePickImage}>
           {carData.imageUrl ? (
-            <Image source={{ uri: carData.imageUrl }} style={styles.carImage} />
+            <Image source={{ uri: carData.imageUrl }} style={styles.carImage} resizeMode="cover" />
           ) : (
             <Text style={styles.imagePickerText}>Pick an Image</Text>
           )}
@@ -194,8 +174,8 @@ const AddCarScreen = ({ navigation, route }) => {
         </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -258,6 +238,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     borderColor: "#90CAF9",
     borderWidth: 1,
+    overflow: "hidden",
   },
   carImage: {
     width: "100%",
@@ -281,6 +262,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
-});
+})
 
-export default AddCarScreen;
+export default AddCarScreen
+

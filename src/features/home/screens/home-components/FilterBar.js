@@ -1,124 +1,307 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Button } from "react-native";
-import { Picker } from "@react-native-picker/picker";
-import BrandModelService from "../../service/BrandModelService";
-import { API_BASE_URL } from "../../../../config/config";
-const FilterBar = () => {
-  const [brands, setBrands] = useState([]);
-  const [selectedBrand, setSelectedBrand] = useState("");
-  const [models, setModels] = useState([]);
-  const [selectedModel, setSelectedModel] = useState("");
-  const [error, setError] = useState(null);
+import { useState, useEffect, useCallback } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
+import { Dropdown } from "react-native-element-dropdown";
+import { FilterService } from "../../service/FilterService";
+import { AntDesign } from "@expo/vector-icons";
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const fetchedBrands = await BrandModelService.getAllBrands();
-        const fetchedModels = await BrandModelService.getAllModels();
-        setBrands(fetchedBrands);
-        setModels(fetchedModels);
-      } catch (err) {
-        setError("Failed to load data. Please try again.");
-      }
-    };
+const FilterBar = ({ onFilterApply, onResetFilters }) => {
+  const [filters, setFilters] = useState({
+    categories: [],
+    fuelTypes: [],
+    colors: [],
+    years: [],
+    brands: [],
+  });
 
-    fetchData();
-  }, []);
+  const [selectedFilters, setSelectedFilters] = useState({
+    category: null,
+    fuel: null,
+    color: null,
+    year: null,
+    brand: null,
+    priceSort: "desc",
+  });
 
-  // Filtrer les modèles en fonction de la marque sélectionnée
-  const filteredModels = models.filter(
-    (model) => model.brand === selectedBrand
+  const [isLoading, setIsLoading] = useState(true);
+
+  const formatData = useCallback(
+    (data) =>
+      data.map((item) => ({ label: item.toString(), value: item.toString() })),
+    []
   );
 
-  // Fonction pour appliquer les filtres
-  const applyFilters = () => {
-    console.log("Selected Brand:", selectedBrand);
-    console.log("Selected Model:", selectedModel);
+  useEffect(() => {
+    const fetchFilterOptions = async () => {
+      try {
+        const options = await FilterService.getFilterOptions();
+        setFilters({
+          categories: formatData(options.categories || []),
+          fuelTypes: formatData(options.fuelTypes || []),
+          colors: formatData(options.colors || []),
+          years: formatData(options.years || []),
+          brands: formatData(options.brands || []),
+        });
+      } catch (error) {
+        console.error("Error loading filters:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchFilterOptions();
+  }, [formatData]);
+
+  const handleApplyFilters = () => {
+    if (onFilterApply) {
+      onFilterApply(selectedFilters);
+    }
   };
+
+  const handleResetFilters = () => {
+    setSelectedFilters({
+      category: null,
+      fuel: null,
+      color: null,
+      year: null,
+      brand: null,
+      priceSort: "desc",
+    });
+    if (onResetFilters) onResetFilters();
+  };
+
+  const togglePriceSort = () => {
+    setSelectedFilters((prev) => ({
+      ...prev,
+      priceSort: prev.priceSort === "asc" ? "desc" : "asc",
+    }));
+  };
+
+  const renderItem = (item) => {
+    return (
+      <View style={styles.item}>
+        <Text style={styles.textItem}>{item.label}</Text>
+      </View>
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Filter Options</Text>
-      {/* Conteneur des dropdowns et du bouton */}
-      <View style={styles.frame}>
-        {/* Conteneur des dropdowns côte à côte */}
-        <View style={styles.dropdownContainer}>
-          {/* Dropdown pour les marques */}
-          <Picker
-            selectedValue={selectedBrand}
-            onValueChange={(itemValue) => {
-              setSelectedBrand(itemValue);
-              setSelectedModel(""); // Réinitialiser le modèle sélectionné
-            }}
-            style={styles.picker}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <View style={styles.filterContainer}>
+          <DropdownComponent
+            data={filters.categories}
+            label="Category"
+            value={selectedFilters.category}
+            onChange={(item) =>
+              setSelectedFilters({ ...selectedFilters, category: item.value })
+            }
+            renderItem={renderItem}
+          />
+          <DropdownComponent
+            data={filters.fuelTypes}
+            label="Fuel Type"
+            value={selectedFilters.fuel}
+            onChange={(item) =>
+              setSelectedFilters({ ...selectedFilters, fuel: item.value })
+            }
+            renderItem={renderItem}
+          />
+          <DropdownComponent
+            data={filters.colors}
+            label="Color"
+            value={selectedFilters.color}
+            onChange={(item) =>
+              setSelectedFilters({ ...selectedFilters, color: item.value })
+            }
+            renderItem={renderItem}
+          />
+          <DropdownComponent
+            data={filters.years}
+            label="Year"
+            value={selectedFilters.year}
+            onChange={(item) =>
+              setSelectedFilters({ ...selectedFilters, year: item.value })
+            }
+            renderItem={renderItem}
+          />
+          <DropdownComponent
+            data={filters.brands}
+            label="Brand"
+            value={selectedFilters.brand}
+            onChange={(item) =>
+              setSelectedFilters({ ...selectedFilters, brand: item.value })
+            }
+            renderItem={renderItem}
+          />
+          <TouchableOpacity
+            style={styles.priceSortButton}
+            onPress={togglePriceSort}
           >
-            <Picker.Item label="Choose a brand" value="" />
-            {brands.map((brand, index) => (
-              <Picker.Item key={index} label={brand} value={brand} />
-            ))}
-          </Picker>
-
-          {/* Dropdown pour les modèles */}
-          <Picker
-            selectedValue={selectedModel}
-            onValueChange={(itemValue) => setSelectedModel(itemValue)}
-            style={styles.picker}
-            enabled={filteredModels.length > 0} // Désactiver si aucun modèle
-          >
-            <Picker.Item label="Choose a model" value="" />
-            {filteredModels.map((model) => (
-              <Picker.Item
-                key={model.id}
-                label={model.name}
-                value={model.name}
-              />
-            ))}
-          </Picker>
+            <Text style={styles.priceSortText}>Price</Text>
+            <AntDesign
+              name={
+                selectedFilters.priceSort === "asc" ? "arrowup" : "arrowdown"
+              }
+              size={16}
+              color="#333"
+            />
+          </TouchableOpacity>
         </View>
-
-        {/* Bouton Appliquer */}
-        <Button title="Apply" onPress={applyFilters} style={styles.button} />
+      </ScrollView>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={handleApplyFilters}>
+          <Text style={styles.buttonText}>Apply Filters</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleResetFilters}>
+          <Text style={styles.buttonText}>Reset Filters</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
 };
 
+const DropdownComponent = ({ data, label, value, onChange, renderItem }) => (
+  <View style={styles.dropdownContainer}>
+    <Text style={styles.dropdownLabel}>{label}</Text>
+    <Dropdown
+      style={styles.dropdown}
+      data={data}
+      search
+      searchPlaceholder="Search..."
+      labelField="label"
+      valueField="value"
+      placeholder={`Select ${label}`}
+      value={value}
+      onChange={onChange}
+      renderItem={renderItem}
+      placeholderStyle={styles.placeholderStyle}
+      selectedTextStyle={styles.selectedTextStyle}
+      inputSearchStyle={styles.inputSearchStyle}
+      iconStyle={styles.iconStyle}
+    />
+  </View>
+);
+
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
-    backgroundColor: "#f5f5f5",
-    flex: 1,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 16,
-  },
-  frame: {
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 8,
+    padding: 15,
+    backgroundColor: "#ffffff",
+    borderRadius: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 5, // Ombre pour Android
+    elevation: 3,
+    marginBottom: 15,
+    marginHorizontal: 15,
+  },
+  filterContainer: {
+    flexDirection: "row",
+    flexWrap: "nowrap",
+    justifyContent: "flex-start",
+    alignItems: "flex-end",
   },
   dropdownContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between", // Espace entre les listes
-    alignItems: "center", // Aligner les items au centre
-    marginBottom: 16, // Espace entre les listes et le bouton
+    width: 150,
+    marginRight: 10,
+    marginBottom: 10,
   },
-  picker: {
-    flex: 1, // Prendre un espace égal
-    height: 50,
-    backgroundColor: "#e0e0e0",
+  dropdownLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 5,
+    color: "#333",
+  },
+  dropdown: {
+    backgroundColor: "#f8f8f8",
     borderRadius: 8,
-    marginHorizontal: 8, // Espacement horizontal entre les éléments
+    borderColor: "#e0e0e0",
+    borderWidth: 1,
+    padding: 10,
+    height: 50,
+  },
+  placeholderStyle: {
+    fontSize: 14,
+    color: "#999",
+  },
+  selectedTextStyle: {
+    fontSize: 14,
+    color: "#333",
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 14,
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  item: {
+    padding: 12,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  textItem: {
+    flex: 1,
+    fontSize: 14,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 15,
   },
   button: {
-    marginTop: 16,
-    backgroundColor: "#0066FF",
+    backgroundColor: "#007bff",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "600",
+    textAlign: "center",
+    fontSize: 16,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  priceSortButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f8f8f8",
+    borderRadius: 8,
+    borderColor: "#e0e0e0",
+    borderWidth: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    height: 50,
+    marginRight: 10,
+    marginBottom: 10,
+  },
+  priceSortText: {
+    fontSize: 14,
+    fontWeight: "600",
+    marginRight: 5,
+    color: "#333",
   },
 });
 

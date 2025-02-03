@@ -36,13 +36,11 @@ export const CarService = {
 
   getAgencyId: async () => {
     try {
-      // Retrieve the username from AsyncStorage
       const username = await AsyncStorage.getItem("username");
 
       if (!username) {
         throw new Error("No username found in AsyncStorage.");
       }
-
       // Use the username in the API request
       const response = await axios.get(
         `${endpoint}/agencies/agency/${username}`
@@ -54,13 +52,8 @@ export const CarService = {
     }
   },
 
-  getCarsByAgence: async () => {
+  getCarsByAgency: async (username) => {
     try {
-      const username = await AsyncStorage.getItem("username");
-
-      if (!username) {
-        throw new Error("No username found in AsyncStorage.");
-      }
       const response = await axios.get(`${endpoint}/users/${username}/cars`);
       return response.data;
     } catch (error) {

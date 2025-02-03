@@ -51,7 +51,7 @@ const LoginScreen = () => {
           />
           <TextInput
             style={LoginStyles.input}
-            placeholder="E-Mail or Username"
+            placeholder="Username"
             placeholderTextColor="#888"
             value={formValues.username}
             onChangeText={(text) => handleInputChange("username", text)}

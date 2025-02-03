@@ -16,14 +16,14 @@ export const AppBar = ({ onNotificationPress }) => {
       try {
         const storedUsername = await AsyncStorage.getItem("username");
         if (storedUsername) {
-          setUsername(storedUsername); // Met à jour le nom d'utilisateur
+          setUsername(storedUsername); 
         }
       } catch (error) {
         console.error("Error retrieving username from storage:", error);
       }
     };
     fetchUsername();
-  }, []); // Exécuter une seule fois au montage du composant
+  }, []); 
 
   const handleMessagePress = () => {
     navigation.navigate("ChatScreen");

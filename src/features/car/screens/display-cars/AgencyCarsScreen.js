@@ -12,6 +12,7 @@ import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { CarService } from "../../../car/services/CarService";
 import { AgencyService } from "../../../agency/services/AgencyService";
 import { Users, Fuel, Plus, Trash2 } from "lucide-react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const AgencyCarsScreen = () => {
   const navigation = useNavigation();
@@ -30,7 +31,12 @@ const AgencyCarsScreen = () => {
 
   const fetchCarsWithBrandAndModel = useCallback(async () => {
     try {
-      const fetchedCars = await CarService.getCarsByAgence();
+      const username = await AsyncStorage.getItem("username");
+
+      if (!username) {
+        throw new Error("No username found in AsyncStorage.");
+      }
+      const fetchedCars = await CarService.getCarsByAgency(username);
       const carsWithBrandAndModel = await Promise.all(
         fetchedCars.map(async (car) => {
           const { brandName, modelName } =
@@ -164,10 +170,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 20,
     paddingVertical: 15,
+    paddingTop: 30,
     backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
     borderBottomColor: "#E0E0E0",
-    marginTop: 40,
   },
   agencyInfo: {
     flexDirection: "row",

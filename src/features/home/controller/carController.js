@@ -1,23 +1,24 @@
-import { getAllCars, applyCarFilters } from '../service/CarService';
+import { getAllCars, getCarRentalDetails as getCarRentalDetailsService } from "../service/CarService"
 
-export const carController = {
-  // Fonction pour récupérer toutes les voitures
+const CarController = {
   getCars: async () => {
     try {
-      const cars = await getAllCars();
-      return cars;
+      const cars = await getAllCars()
+      return cars
     } catch (error) {
-      throw new Error('Erreur lors de la récupération des voitures');
+      console.error("Error fetching cars:", error)
+      throw new Error("Failed to fetch cars")
     }
   },
-
-  // Fonction pour appliquer des filtres sur les voitures
-  filterCars: async (filters) => {
+  getCarRentalDetails: async (carId) => {
     try {
-      const filteredCars = await applyCarFilters(filters);
-      return filteredCars;
+      const details = await getCarRentalDetailsService(carId)
+      return details
     } catch (error) {
-      throw new Error('Erreur lors de l\'application des filtres sur les voitures');
+      console.error("Error fetching car rental details:", error)
+      throw new Error("Failed to fetch car rental details")
     }
   },
-};
+}
+
+export default CarController

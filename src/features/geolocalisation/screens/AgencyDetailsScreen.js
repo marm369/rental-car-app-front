@@ -1,91 +1,182 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   Image,
+  StyleSheet,
   ScrollView,
-  FlatList,
+  ActivityIndicator,
   TouchableOpacity,
+  FlatList,
+  Linking,
 } from "react-native";
+import MapView, { Marker } from "react-native-maps";
+import { AgencyService } from "../../agency/services/AgencyService";
+import { CarService } from "../../car/services/CarService";
+import ProfileService from "../../profile/services/ProfileService";
+import { Phone, MessageCircle, ArrowLeft } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
-import Icon from "react-native-vector-icons/MaterialIcons";
 
-const AgencyDetailsScreen = ({ route }) => {
-  const navigation = useNavigation();
-  const { agency } = route.params;
+const AgencyDetailsScreen = ({ route, navigation }) => {
+  const navigationCar = useNavigation();
+  const { agencyId } = route.params;
+  const [agency, setAgency] = useState(null);
+  const [owner, setOwner] = useState(null);
+  const [cars, setCars] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Liste des voitures proposées par le agency
-  const cars = [
-    {
-      id: 1,
-      image: require("../../../../assets/cars/BMWM4.jpeg"),
-      model: "BMW M4",
-      year: 2023,
-      price: 150,
-    },
-    {
-      id: 2,
-      image: require("../../../../assets/cars/MercedesC300.jpeg"),
-      model: "Mercedes C300",
-      year: 2023,
-      price: 130,
-    },
-    {
-      id: 3,
-      image: require("../../../../assets/cars/AudiA5.jpeg"),
-      model: "Audi A5",
-      year: 2022,
-      price: 120,
-    },
-  ];
+  useEffect(() => {
+    fetchAgencyDetails();
+  }, []);
 
-  const renderCarItem = ({ item }) => (
-    <View style={styles.carItem}>
-      <Image source={item.image} style={styles.carImage} />
-      <View style={styles.carInfo}>
-        <Text style={styles.carName}>{item.model}</Text>
-        <Text style={styles.carDetails}>
-          Année : {item.year} | Prix : ${item.price}/jour
-        </Text>
+  const fetchAgencyDetails = async () => {
+    try {
+      setLoading(true);
+      const agencyDetails = await AgencyService.getAgencyById(agencyId);
+      setAgency(agencyDetails);
+      const ownerDetails = await ProfileService.getUserInfoById(
+        agencyDetails.userId
+      );
+      setOwner(ownerDetails);
+      const carsList = await CarService.getCarsByAgency(ownerDetails.username);
+      setCars(carsList);
+
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching agency details:", error);
+      setError("Failed to load agency details. Please try again.");
+      setLoading(false);
+    }
+  };
+
+  const handleCallOwner = () => {
+    if (owner.phoneNumber) {
+      Linking.openURL(`tel:${owner.phoneNumber}`);
+    } else {
+      console.log("Le numéro de téléphone n'est pas disponible");
+    }
+  };
+
+  const handleMessageOwner = () => {
+    // Implement message functionality
+    console.log("Messaging owner");
+  };
+
+  const handleGoBack = () => {
+    navigation.goBack();
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#3498db" />
       </View>
-    </View>
-  );
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>{error}</Text>
+      </View>
+    );
+  }
+
+  if (!agency || !owner) {
+    return null;
+  }
 
   return (
     <ScrollView style={styles.container}>
-      {/* Arrow Back Button */}
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => navigation.goBack()}
-      >
-        <Icon name="arrow-back" size={24} color="#333" />
+      <TouchableOpacity>
+        <Image
+          source={{ uri: agency.imageBase64 }}
+          style={styles.headerImage}
+        />
       </TouchableOpacity>
+      <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
+        <ArrowLeft color="#3498db" size={24} />
+      </TouchableOpacity>
+      <View style={styles.contentContainer}>
+        <View style={styles.section}>
+          <Text style={styles.agencyName}>{agency.name}</Text>
+          <Text style={styles.description}>{agency.description}</Text>
+        </View>
 
-      {/* Agency Image */}
-      <Image source={agency.image} style={styles.agencyImage} />
+        <View style={styles.ownerSection}>
+          <Image source={{ uri: owner.picture }} style={styles.ownerImage} />
+          <View style={styles.ownerInfo}>
+            <Text
+              style={styles.ownerName}
+            >{`${owner.firstName} ${owner.lastName}`}</Text>
+            <Text style={styles.ownerEmail}>{owner.email}</Text>
+            <View style={styles.ownerActions}>
+              <TouchableOpacity
+                onPress={handleCallOwner}
+                style={styles.actionButton}
+              >
+                <Phone color="#3498db" size={20} />
+                <Text style={styles.actionText}>Call</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleMessageOwner}
+                style={styles.actionButton}
+              >
+                <MessageCircle color="#3498db" size={20} />
+                <Text style={styles.actionText}>Message</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
 
-      {/* Agency Info */}
-      <View style={styles.infoContainer}>
-        <Text style={styles.agencyName}>{agency.name}</Text>
-        <Text style={styles.agencyDetails}>📍 {agency.address}</Text>
-        <Text style={styles.agencyDetails}>📞 {agency.phone}</Text>
-        <Text style={styles.agencyDescription}>
-          {agency.description ||
-            `Ceci est la description du magasin ${agency.name}.`}
-        </Text>
+        <MapView
+          style={styles.map}
+          initialRegion={{
+            latitude: agency.location.coordinates[1],
+            longitude: agency.location.coordinates[0],
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          }}
+        >
+          <Marker
+            coordinate={{
+              latitude: agency.location.coordinates[1],
+              longitude: agency.location.coordinates[0],
+            }}
+            title={agency.name}
+          />
+        </MapView>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Available Cars</Text>
+          <FlatList
+            data={cars}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={() =>
+                  navigationCar.navigate("CarRentalDetails", { carId: item.id })
+                }
+                style={styles.carItem}
+              >
+                <Image
+                  source={{ uri: item.imageUrl }}
+                  style={styles.carImage}
+                />
+                <View style={styles.carInfo}>
+                  <Text style={styles.carName}>{item.category}</Text>
+                  <Text
+                    style={styles.carPrice}
+                  >{`$${item.pricePerDay}/day`}</Text>
+                </View>
+              </TouchableOpacity>
+            )}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+          />
+        </View>
       </View>
-
-      {/* Cars List */}
-      <Text style={styles.sectionTitle}>Voitures disponibles</Text>
-      <FlatList
-        data={cars}
-        renderItem={renderCarItem}
-        keyExtractor={(item) => item.id.toString()}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.carList}
-      />
     </ScrollView>
   );
 };
@@ -95,95 +186,129 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f8f9fa",
   },
-  backButton: {
-    position: "absolute",
-    top: 40,
-    left: 20,
-    zIndex: 10,
-    backgroundColor: "#fff",
-    padding: 8,
-    borderRadius: 50,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  agencyImage: {
+  headerImage: {
     width: "100%",
     height: 200,
     resizeMode: "cover",
   },
-  infoContainer: {
-    padding: 20,
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    marginTop: -20,
+  contentContainer: {
+    padding: 16,
+  },
+  section: {
+    backgroundColor: "#ffffff",
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 5,
+    shadowRadius: 4,
+    elevation: 3,
   },
   agencyName: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "bold",
-    color: "#333",
-    marginBottom: 10,
+    color: "#2c3e50",
+    marginBottom: 8,
   },
-  agencyDetails: {
+  description: {
     fontSize: 16,
-    color: "#666",
-    marginBottom: 5,
+    color: "#34495e",
+    lineHeight: 24,
   },
-  agencyDescription: {
+  ownerSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  ownerImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginRight: 16,
+  },
+  ownerInfo: {
+    flex: 1,
+  },
+  ownerName: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#2c3e50",
+    marginBottom: 4,
+  },
+  ownerEmail: {
     fontSize: 14,
-    color: "#555",
-    marginTop: 10,
-    lineHeight: 20,
+    color: "#7f8c8d",
+    marginBottom: 8,
+  },
+  ownerActions: {
+    flexDirection: "row",
+  },
+  actionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#ecf0f1",
+    borderRadius: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    marginRight: 12,
+  },
+  actionText: {
+    marginLeft: 4,
+    fontSize: 14,
+    color: "#3498db",
+  },
+  map: {
+    height: 200,
+    borderRadius: 8,
+    marginBottom: 16,
+    overflow: "hidden",
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#333",
-    marginLeft: 20,
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  carList: {
-    paddingLeft: 20,
+    color: "#2c3e50",
+    marginBottom: 12,
   },
   carItem: {
-    marginRight: 15,
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 5,
-    width: 180,
+    width: 160,
+    marginRight: 16,
   },
   carImage: {
     width: "100%",
     height: 120,
-    resizeMode: "cover",
+    borderRadius: 8,
+    marginBottom: 8,
   },
   carInfo: {
-    padding: 10,
-    alignItems: "center",
+    padding: 4,
   },
   carName: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#333",
-    marginBottom: 5,
+    color: "#2c3e50",
+    marginBottom: 4,
   },
-  carDetails: {
+  carPrice: {
     fontSize: 14,
-    color: "#666",
+    color: "#3498db",
+  },
+  backButton: {
+    position: "absolute",
+    top: 70,
+    left: 10,
+    zIndex: 1,
+    padding: 10,
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    borderRadius: 20,
   },
 });
 

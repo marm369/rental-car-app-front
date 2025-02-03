@@ -1,68 +1,135 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
-import { Users, Fuel } from "lucide-react-native";
-import { carController } from '../../controller/carController';
+import { useEffect, useState, useCallback } from "react";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  ActivityIndicator,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
+import { Users, Fuel, Car } from "lucide-react-native";
+import { useNavigation } from "@react-navigation/native";
+import FilterController from "../../controller/FilterController";
 
+export const CarList = ({ filters }) => {
+  const navigation = useNavigation();
+  const [cars, setCars] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-export const CarList = () => {
-  const [cars, setCars] = useState([]); // État pour stocker les voitures
+  const fetchCars = useCallback(async () => {
+    setLoading(true);
+    try {
+      const fetchedCars = await FilterController.filterCars(filters || {});
+      setCars(fetchedCars || []);
+    } catch (error) {
+      console.error("Error fetching cars:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [filters]);
 
   useEffect(() => {
-    // Appel de la fonction pour récupérer les voitures
-    const fetchCars = async () => {
-      try {
-        const fetchedCars = await carController.getCars();
-        setCars(fetchedCars); // Mise à jour de l'état avec les voitures récupérées
-      } catch (error) {
-        console.error(error);
-      }
-    };
+    fetchCars();
+  }, [fetchCars]);
 
-    fetchCars(); // Appeler la fonction pour récupérer les voitures
-  }, []);
+  if (loading) {
+    return (
+      <ActivityIndicator size="large" color="#0066FF" style={styles.loader} />
+    );
+  }
 
-  return (
-    <View style={styles.container}>
-      {cars.map((car) => (
-        <View key={car.id} style={styles.carCard}>
-          {/* Image de la voiture */}
+  if (!cars.length) {
+    return (
+      <View style={styles.noCarsContainer}>
+        <Car size={48} color="#666" />
+        <Text style={styles.noCarsText}>No cars available</Text>
+      </View>
+    );
+  }
+  const renderCarItem = (car) => {
+    return (
+      <View style={styles.carCard} key={car.id}>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("CarRentalDetails", { carId: car.id })
+          }
+        >
           <Image source={{ uri: car.imageUrl }} style={styles.carImage} />
           <View style={styles.carInfo}>
             <View style={styles.header}>
               <View>
                 <Text style={styles.brandModel}>
-                  {car.brand?.name} {car.model?.name} {/* Optionnel si vous voulez inclure ces champs */}
+                  {car.brandName + "  " + car.modelName}
                 </Text>
-                <Text style={styles.type}>{car.color}</Text>
+                <Text style={styles.type}>
+                  {car.color ?? "Couleur inconnue"}
+                </Text>
               </View>
               <Text style={styles.price}>${car.pricePerDay}/jour</Text>
             </View>
             <View style={styles.details}>
               <View style={styles.detailItem}>
                 <Users size={16} color="#666" />
-                <Text style={styles.detailText}>4 personnes</Text>
+                <Text style={styles.detailText}>
+                  {car.nbrPersonnes} personnes
+                </Text>
               </View>
               <View style={styles.detailItem}>
                 <Fuel size={16} color="#666" />
-                <Text style={styles.detailText}>{car.isRented ? "Louée" : "Disponible"}</Text>
+                <Text style={styles.detailText}>{car.fuelType}</Text>
               </View>
-              <Text style={styles.detailText}>{car.year}</Text>
+              <Text style={styles.detailText}>
+                {car.year ?? "Année inconnue"}
+              </Text>
             </View>
           </View>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  return (
+    <ScrollView contentContainerStyle={styles.listContainer}>
+      {cars && cars.length > 0 ? (
+        cars.map((car) => renderCarItem(car))
+      ) : (
+        <View style={styles.noCarsContainer}>
+          <Car size={48} color="#666" />
+          <Text style={styles.noCarsText}>Aucune voiture disponible</Text>
         </View>
-      ))}
-    </View>
+      )}
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 16,
+  listContainer: {
+    paddingVertical: 8,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  noCarsContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+  },
+  noCarsText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#333",
+    marginTop: 16,
+    textAlign: "center",
   },
   carCard: {
     backgroundColor: "#fff",
     borderRadius: 12,
-    marginBottom: 16,
+    marginHorizontal: 16,
+    marginVertical: 8,
     overflow: "hidden",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -105,10 +172,13 @@ const styles = StyleSheet.create({
   detailItem: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    marginRight: 10,
   },
   detailText: {
     fontSize: 14,
     color: "#666",
+    marginLeft: 4,
   },
 });
+
+export default CarList;

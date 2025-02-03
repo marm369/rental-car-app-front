@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
-  BackHandler,
 } from "react-native";
 import { MaterialIcons, Feather } from "@expo/vector-icons";
 import ProfileController from "../controllers/ProfileController";

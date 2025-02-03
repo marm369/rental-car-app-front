@@ -6,13 +6,16 @@ import LoginScreen from "../authentication/screens/login/LoginScreen";
 import BottomNavigationBar from "../navigation/BottomNavigationBar";
 import SignUpScreen from "../authentication/screens/signup/SignUpScreen";
 import SuccessScreen from "../../common/components/SuccessScreen";
-import AgencyDetailsScreen from "../geolocalisation/screens/AgencyDetailsScreen";
 import CarDetailsScreen from "../car/screens/display-cars/CarDetailsScreen";
 import AddCarScreen from "../car/screens/add-car/AddCarScreen";
 import ChatScreen from "../home/screens/home-components/Chat";
 import HomeScreen from "../home/screens/HomeScreen";
 import AgencyScreen from "../agency/screens/create-agency/AgencyScreen";
 import AgencyCarsScreen from "../car/screens/display-cars/AgencyCarsScreen";
+import AgencyDetailsScreen from "../geolocalisation/screens/AgencyDetailsScreen";
+import CarRentalDetailsScreen from "../home/screens/CarRentalDetailsScreens";
+
+
 
 const Stack = createNativeStackNavigator();
 export default function AppNavigation() {
@@ -49,12 +52,6 @@ export default function AppNavigation() {
           component={AddCarScreen}
           options={{ headerShown: false }}
         />
-
-        <Stack.Screen
-          name="AgencyDetails"
-          component={AgencyDetailsScreen}
-          options={{ headerShown: false }}
-        />
         <Stack.Screen
           name="ChatScreen"
           component={ChatScreen}
@@ -78,6 +75,17 @@ export default function AppNavigation() {
         <Stack.Screen
           name="AgencyCars"
           component={AgencyCarsScreen}
+          options={{ headerShown: false }}
+        />
+          <Stack.Screen
+          name="AgencyDetails"
+          component={AgencyDetailsScreen}
+          options={{ headerShown: false }}
+        />
+
+<Stack.Screen
+          name="CarRentalDetails"
+          component={CarRentalDetailsScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
