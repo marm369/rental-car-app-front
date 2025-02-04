@@ -1,9 +1,8 @@
-import { endpoint } from "../../../config/config";
+import { API_BASE_URL } from "../../../config/config";
 
 const ProfileService = {
   async getUserInfo(username) {
-    const Endpoint = `${endpoint}/users/${username}`;
-    const response = await fetch(Endpoint, {
+    const response = await fetch(`${API_BASE_URL}/users/${username}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -17,8 +16,7 @@ const ProfileService = {
     return data;
   },
   async getUserInfoById(id) {
-    const Endpoint = `${endpoint}/users/id/${id}`;
-    const response = await fetch(Endpoint, {
+    const response = await fetch(`${API_BASE_URL}/users/id/${id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

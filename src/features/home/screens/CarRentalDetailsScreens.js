@@ -9,6 +9,7 @@ import {
   Dimensions,
   StatusBar,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import {
   Users,
@@ -21,6 +22,8 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import CarController from "../controller/CarController";
+import ReservationDialog from "../../reservation/screens/ReservationDialog";
+import { ReservationService } from "../../reservation/services/ReservationService";
 
 const { height, width } = Dimensions.get("window");
 
@@ -47,6 +50,29 @@ const CarRentalDetailsScreen = ({ route, navigation }) => {
     fetchCarDetails();
   }, [carId]);
 
+  const [showReservationDialog, setShowReservationDialog] = useState(false);
+  const handleRentCar = () => {
+    setShowReservationDialog(true);
+  };
+  const handleReservationSubmit = async (startDate, endDate) => {
+    setShowReservationDialog(false);
+    try {
+      const reservationData = {
+        userId: Number(currentUserId),
+        carId: carId,
+        ownerId: Number(carDetails.ownerId),
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+      };
+      const response = await ReservationService.createReservation(
+        reservationData
+      );
+      Alert.alert("Reservation Status", response.message);
+    } catch (error) {
+      console.error("Error creating reservation:", error);
+      Alert.alert("Error", "Failed to create reservation. Please try again.");
+    }
+  };
   const headerHeight = height * 0.4;
   const scrollDistance = headerHeight - 50;
 
@@ -174,17 +200,17 @@ const CarRentalDetailsScreen = ({ route, navigation }) => {
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity
-              style={styles.rentButton}
-              onPress={() => {
-                console.log("Rent car");
-              }}
-            >
+            <TouchableOpacity style={styles.rentButton} onPress={handleRentCar}>
               <Text style={styles.rentButtonText}>Rent Car</Text>
             </TouchableOpacity>
           </View>
         )}
       </Animated.ScrollView>
+      <ReservationDialog
+        visible={showReservationDialog}
+        onClose={() => setShowReservationDialog(false)}
+        onSubmit={handleReservationSubmit}
+      />
     </View>
   );
 };

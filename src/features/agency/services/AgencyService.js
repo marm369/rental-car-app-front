@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Alert } from "react-native";
-import { endpoint } from "../../../config/config";
+import { API_BASE_URL } from "../../../config/config";
 import AgencyModel from "../models/AgencyModel";
 
 export const AgencyService = {
@@ -64,7 +64,7 @@ export const AgencyService = {
         userId: Number.parseInt(userId, 10),
       };
 
-      const response = await fetch(`${endpoint}/agencies/create`, {
+      const response = await fetch(`${API_BASE_URL}/agencies/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -90,7 +90,7 @@ export const AgencyService = {
         throw new Error("Unable to find username in local storage!");
       }
       const response = await fetch(
-        `${endpoint}/agencies/agencyInfo/${username}`
+        `${API_BASE_URL}/agencies/agencyInfo/${username}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch agency info");
@@ -109,7 +109,7 @@ export const AgencyService = {
 
   async getAgencies() {
     try {
-      const response = await fetch(`${endpoint}/agencies/getAgencies`);
+      const response = await fetch(`${API_BASE_URL}/agencies/getAgencies`);
       if (!response.ok) {
         throw new Error("Failed to fetch agencies");
       }
@@ -133,7 +133,7 @@ export const AgencyService = {
 
   async getAgencyById(agencyId) {
     try {
-      const response = await fetch(`${endpoint}/agencies/${agencyId}`);
+      const response = await fetch(`${API_BASE_URL}/agencies/${agencyId}`);
       if (!response.ok) {
         throw new Error("Failed to fetch agency details");
       }

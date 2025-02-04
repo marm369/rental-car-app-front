@@ -1,10 +1,10 @@
 import axios from "axios";
-import { endpoint } from "../../../config/config";
+import { API_BASE_URL } from "../../../config/config";
 
 export const FilterService = {
   getFilterOptions: async () => {
     try {
-      const response = await axios.get(`${endpoint}/cars/filter-options`);
+      const response = await axios.get(`${API_BASE_URL}/cars/filter-options`);
       return response.data;
     } catch (error) {
       console.error("Error fetching filter options:", error);
@@ -14,7 +14,7 @@ export const FilterService = {
 
   getModelsByBrand: async (brand) => {
     try {
-      const response = await axios.get(`${endpoint}/models?brand=${brand}`);
+      const response = await axios.get(`${API_BASE_URL}/models?brand=${brand}`);
       return response.data;
     } catch (error) {
       console.error("Error fetching models:", error);
@@ -29,7 +29,7 @@ export const FilterService = {
       }
   
       const response = await axios.post(
-        `${endpoint}/cars/apply-filters`,
+        `${API_BASE_URL}/cars/apply-filters`,
         filters
       );
       return response.data.cars;

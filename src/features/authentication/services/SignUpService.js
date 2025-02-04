@@ -1,16 +1,9 @@
 import { Alert } from "react-native";
-import { endpoint } from "../../../config/config";
+import { API_BASE_URL } from "../../../config/config";
 
 export const handleCreateAccountRequest = async (formValues) => {
   try {
-    // Ensure endpoint is correctly imported and defined
-    if (!endpoint) {
-      throw new Error("Endpoint is not defined in config");
-    }
-
-    // Construct the full URL for the API endpoint
-    const apiUrl = `${endpoint}/users/register`;
-
+ 
     // Create the payload with necessary properties
     const payload = {
       username: formValues.username,
@@ -28,7 +21,7 @@ export const handleCreateAccountRequest = async (formValues) => {
     const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 seconds timeout
 
     // Make the POST request to the backend
-    const response = await fetch(apiUrl, {
+    const response = await fetch(`${API_BASE_URL}/users/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

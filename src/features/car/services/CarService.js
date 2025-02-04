@@ -1,11 +1,11 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { endpoint } from "../../../config/config";
+import { API_BASE_URL } from "../../../config/config";
 
 export const CarService = {
   getCarTypes: async () => {
     try {
-      const response = await axios.get(`${endpoint}/cars/types`);
+      const response = await axios.get(`${API_BASE_URL}/cars/types`);
       return response.data;
     } catch (error) {
       console.error("Error fetching Car types:", error);
@@ -15,7 +15,7 @@ export const CarService = {
 
   getAllBrands: async () => {
     try {
-      const response = await axios.get(`${endpoint}/brand/getAll`);
+      const response = await axios.get(`${API_BASE_URL}/brand/getAll`);
       return response.data;
     } catch (error) {
       console.error("Error fetching brands:", error);
@@ -26,7 +26,7 @@ export const CarService = {
   addCar: async (carData) => {
     try {
       console.log(carData);
-      const response = await axios.post(`${endpoint}/cars`, carData);
+      const response = await axios.post(`${API_BASE_URL}/cars`, carData);
       return response.data;
     } catch (error) {
       console.error("Error adding car:", error);
@@ -43,7 +43,7 @@ export const CarService = {
       }
       // Use the username in the API request
       const response = await axios.get(
-        `${endpoint}/agencies/agency/${username}`
+        `${API_BASE_URL}/agencies/agency/${username}`
       );
       return response.data;
     } catch (error) {
@@ -54,7 +54,7 @@ export const CarService = {
 
   getCarsByAgency: async (username) => {
     try {
-      const response = await axios.get(`${endpoint}/users/${username}/cars`);
+      const response = await axios.get(`${API_BASE_URL}/users/${username}/cars`);
       return response.data;
     } catch (error) {
       console.error("Error fetching cars:", error);
@@ -63,8 +63,7 @@ export const CarService = {
   },
   getBrandModelByCarId: async (carId) => {
     try {
-      const response = await axios.get(`${endpoint}/cars/${carId}/brand-model`);
-      console.log(response.data);
+      const response = await axios.get(`${API_BASE_URL}/cars/${carId}/brand-model`);
       return response.data;
     } catch (error) {
       console.error(
@@ -76,7 +75,7 @@ export const CarService = {
   },
   deleteCar: async (carId) => {
     try {
-      const response = await axios.delete(`${endpoint}/cars/delete/${carId}`);
+      const response = await axios.delete(`${API_BASE_URL}/cars/delete/${carId}`);
       return response.data;
     } catch (error) {
       console.error("Error deleting car:", error);

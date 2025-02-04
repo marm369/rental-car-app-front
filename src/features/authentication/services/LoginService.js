@@ -1,11 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { endpoint } from "../../../config/config";
+import { API_BASE_URL } from "../../../config/config";
 
 export const handleLoginRequest = async (payload) => {
-  const Endpoint = `${endpoint}/users/login`;
-
   try {
-    const response = await fetch(Endpoint, {
+    const response = await fetch(`${API_BASE_URL}/users/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

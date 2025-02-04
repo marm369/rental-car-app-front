@@ -9,7 +9,7 @@ import {
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { endpoint } from "../../config/config";
+import { API_BASE_URL } from "../../config/config";
 
 const Tab = createBottomTabNavigator();
 
@@ -59,8 +59,7 @@ export default function BottomNavigationBar() {
           isAgencyRole = true;
         }
         if (isAgencyRole) {
-          const agencyEndpoint = `${endpoint}/agencies/user/${userId}/hasAgency`;
-          const agencyResponse = await fetch(agencyEndpoint, {
+          const agencyResponse = await fetch(`${API_BASE_URL}/agencies/user/${userId}/hasAgency`, {
             method: "GET",
             headers: {
               "Content-Type": "application/json",

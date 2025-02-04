@@ -14,8 +14,7 @@ import AgencyScreen from "../agency/screens/create-agency/AgencyScreen";
 import AgencyCarsScreen from "../car/screens/display-cars/AgencyCarsScreen";
 import AgencyDetailsScreen from "../geolocalisation/screens/AgencyDetailsScreen";
 import CarRentalDetailsScreen from "../home/screens/CarRentalDetailsScreens";
-
-
+import ReservationManagementScreen from "../reservation/screens/ReservationManagementScreen";
 
 const Stack = createNativeStackNavigator();
 export default function AppNavigation() {
@@ -77,15 +76,20 @@ export default function AppNavigation() {
           component={AgencyCarsScreen}
           options={{ headerShown: false }}
         />
-          <Stack.Screen
+        <Stack.Screen
           name="AgencyDetails"
           component={AgencyDetailsScreen}
           options={{ headerShown: false }}
         />
 
-<Stack.Screen
+        <Stack.Screen
           name="CarRentalDetails"
           component={CarRentalDetailsScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ReservationManagement"
+          component={ReservationManagementScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
